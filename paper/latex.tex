@@ -1,0 +1,1855 @@
+    
+\documentclass[preprint,11pt]{elsarticle}
+
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{url}
+\usepackage{comment}
+\usepackage{multirow}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{hyperref}
+\usepackage{bm}
+\usepackage{subcaption}
+%\captionsetup[subfigure]{justification=centering}
+\usepackage{anyfontsize}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{anyfontsize}
+\usepackage{graphicx}
+\usepackage{float}
+
+\usepackage{tikz}
+\usetikzlibrary{
+  positioning,
+  calc,
+  arrows.meta,
+  backgrounds,
+  fit,
+  shapes.geometric,
+  decorations.pathmorphing
+}
+
+% -----------------------------
+% Colors
+% -----------------------------
+\definecolor{districtA}{RGB}{208,235,255} % light blue
+\definecolor{districtB}{RGB}{225,245,230} % light green
+\definecolor{districtC}{RGB}{255,235,215} % light orange
+
+\definecolor{line1}{RGB}{35,87,137}
+\definecolor{line2}{RGB}{18,120,77}
+\definecolor{line3}{RGB}{173,74,24}
+
+
+\journal{Omega}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{filecontents}{refs.bib}
+@article{Alvarez2025,
+title = {A multi-criteria districting approach with a lexicographic compactness metric: An application to the Chilean postal service},
+journal = {Computers \& Operations Research},
+volume = {173},
+pages = {106845},
+year = {2025},
+issn = {0305-0548},
+doi = {https://doi.org/10.1016/j.cor.2024.106845},
+url = {https://www.sciencedirect.com/science/article/pii/S0305054824003174},
+author = {Eduardo Álvarez-Miranda and Rafael Epstein and Jordi Pereira and Markus Sinnl and Rodolfo Urrutia},
+keywords = {Districting, Postal delivery, Heuristics, Case study},
+abstract = {Recent trends in customer habits have greatly affected last-mile logistics, increasing the pressure to effectively serve an increasing demand. For traditional postal mail companies, this change is an opportunity to alleviate the decreasing role of conventional mail within society and to focus on new products and services. Unfortunately, these changes also affect the efficiency of their supply chains, which were focused on delivering letters. In this work we consider the last-mile reorganization problem as faced by Correos de Chile, the Chilean public postal service. While this work is mostly focused on the particular needs of the company, the approach applies to other scenarios where the work allocation can be modeled as a districting problem with multiple simultaneous objectives and special shape conditions on the districts. To solve the proposed model, a multi-criteria heuristic procedure based on a combination of different neighborhood structures, each geared towards specific characteristics of the problem, is put forward. The applicability of the approach on large-size real-life conditions is tested on instances derived from real life operations showing the applicability of the proposed method.}
+}
+
+
+@ARTICLE{Arredondo2021,
+  author  = {Arredondo, V. and Martínez-Panero, M. and Peña, T. and Ricca, F.},
+  title   = {Mathematical political districting taking care of minority groups},
+  journal = {Annals of Operations Research}, 
+  volume  = {305},
+  year    = {2021},
+  pages   = {375–402},
+  doi     = {https://doi.org/10.1007/s10479-021-04227-5}
+}
+
+
+@article{Borndorfer2023,
+author = {Borndörfer, Ralf and Schwartz, Stephan and Surau, William},
+title = {Vertex covering with capacitated trees},
+journal = {Networks},
+volume = {81},
+number = {2},
+pages = {253-277},
+keywords = {column generation, connected subgraphs, districting, graph covering, integer programming, maximum weight connected subgraph},
+doi = {https://doi.org/10.1002/net.22130},
+url = {https://onlinelibrary.wiley.com/doi/abs/10.1002/net.22130},
+eprint = {https://onlinelibrary.wiley.com/doi/pdf/10.1002/net.22130},
+abstract = {Abstract The covering of a graph with (possibly disjoint) connected subgraphs is a fundamental problem in graph theory. In this paper, we study a version to cover a graph's vertices by connected subgraphs subject to lower and upper weight bounds, and propose a column generation approach to dynamically generate feasible and promising subgraphs. Our focus is on the solution of the pricing problem which turns out to be a variant of the NP-hard Maximum Weight Connected Subgraph Problem. We compare different formulations to handle connectivity, and find that a single-commodity flow formulation performs best. This is notable since the respective literature seems to have widely dismissed this formulation. We improve it to a new coarse-to-fine flow formulation that is theoretically and computationally superior, especially for large instances with many vertices of degree 2 like highway networks, where it provides a speed-up factor of 5 over the non-flow-based formulations. We also propose a preprocessing method that exploits a median property of weight-constrained subgraphs, a primal heuristic, and a local search heuristic. In an extensive computational study we evaluate the presented connectivity formulations on different classes of instances, and demonstrate the effectiveness of the proposed enhancements. Their speed-ups essentially multiply to an overall factor of well over 10. Overall, our approach allows the reliable solution of instances with several hundreds of vertices in a few minutes. These findings are further corroborated in a comparison to existing districting models on a set of test instances from the literature.},
+year = {2023}
+}
+
+
+@article{Bozkaya2011,
+author = {Bozkaya, Burcin and Erkut, Erhan and Haight, Dan and Laporte, Gilbert},
+title = {Designing New Electoral Districts for the City of Edmonton},
+journal = {Interfaces},
+volume = {41},
+number = {6},
+pages = {534-547},
+year = {2011},
+doi = {10.1287/inte.1110.0544},
+URL = {https://doi.org/10.1287/inte.1110.0544},
+eprint = {https://doi.org/10.1287/inte.1110.0544},
+abstract = { Every few years, the city of Edmonton, Canada must review and evaluate changes to its electoral district boundaries. The review process that was completed in 2009 resulted in modifying the district plan from a six-ward system with two council members in each to a single-member 12-ward system. The authors of this paper designed the redistricting plan. This paper describes the algorithm we applied to solve the problem and the decision support system we used. The algorithm is based on a multicriteria mathematical model, which is solved by a tabu search heuristic embedded within a geographic information system (GIS)-based decision support system. The resulting district plan meets districting criteria, including population balance, contiguity, compactness, respect for natural boundaries, growth areas, and integrity of communities of interest. This plan was formally approved as a city bylaw and used in the municipal elections in 2010. }
+}
+
+
+@article{Brotcorne2021,
+title = {Fare inspection patrols scheduling in transit systems using a Stackelberg game approach},
+journal = {Transportation Research Part B: Methodological},
+volume = {154},
+pages = {1-20},
+year = {2021},
+issn = {0191-2615},
+doi = {https://doi.org/10.1016/j.trb.2021.10.001},
+url = {https://www.sciencedirect.com/science/article/pii/S0191261521001855},
+author = {L. Brotcorne and P. Escalona and B. Fortz and M. Labbé},
+keywords = {Fare inspection scheduling, Stackelberg game, Proof-of-payment transit systems},
+abstract = {This study analyzes the scheduling of unpredictable fare inspections in proof-of-payment transit systems, where the transit operator chooses a collection of patrol paths (one for each patrol) every day with some probability in order to avoid any regularity that could be exploited by opportunistic passengers. We use a Stackelberg game approach to represent the hierarchical decision-making process between the transit operator and opportunistic passengers, whose decision on whether to evade the fare depends on the inspection probabilities set by the transit operator. Unlike previous work, we use an exact formulation of the inspection probabilities that allows us to develop new heuristics for the fare inspection scheduling problem, and to assess their solution quality in terms of their optimality gap.}
+}
+
+
+@article{Bruglieri2021,
+title = {Metaheuristics for the Minimum Gap Graph Partitioning Problem},
+journal = {Computers \& Operations Research},
+volume = {132},
+pages = {105301},
+year = {2021},
+issn = {0305-0548},
+doi = {https://doi.org/10.1016/j.cor.2021.105301},
+url = {https://www.sciencedirect.com/science/article/pii/S0305054821000939},
+author = {Maurizio Bruglieri and Roberto Cordone},
+keywords = {Graph partitioning, Tabu Search, Adaptive Large Neighborhood Search},
+abstract = {The Minimum Gap Graph Partitioning Problem (MGGPP) consists in partitioning a vertex-weighted undirected graph into a given number of connected subgraphs with the minimum difference between the largest and the smallest weight in each subgraph. We propose a two-level Tabu Search algorithm and an Adaptive Large Neighborhood Search algorithm to solve the MGGPP in reasonable time on instances with up to about 23000 vertices. The quality of the heuristic solutions is assessed comparing them with the solutions of a polynomially solvable combinatorial relaxation.}
+}
+
+
+@incollection{Bucarey2015,
+author="Bucarey, Victor
+and Ord{\'o}{\~{n}}ez, Fernando
+and Bassaletti, Enrique",
+editor="Eiselt, H. A.
+and Marianov, Vladimir",
+title="Shape and Balance in Police Districting",
+bookTitle="Applications of Location Analysis",
+year="2015",
+publisher="Springer International Publishing",
+address="Cham",
+pages="329--347",
+abstract="Districting is a classic design problem when attempting to provide an efficient service to a geographically dispersed demand. There exists a natural trade-off between aggregation, which allows the pooling of resources, and individualization, where each individual demand has its own resources and response is as efficient as possible. Police and security providers are no strangers to this phenomenon. Having a single set of resources to satisfy the demand over an entire service area avoids the duplication of resources, coordination problems, and uneven workloads that can occur in districting. However, when the service area is large, service times at certain locations can exceed acceptable levels, making it more attractive to service this demand from distributed resources. Furthermore, districting allows for specialization of the resources to efficiently service a diverse demand in different areas. Such specialization causes additional complexity if managed from a centralized pool of resources. This creates the basic problem of separating a demand area into subregions to organize the service process.",
+isbn="978-3-319-20282-2",
+doi="10.1007/978-3-319-20282-2_14",
+url="https://doi.org/10.1007/978-3-319-20282-2_14"
+}
+
+
+@article{Camacho2015,
+title = {A multi-criteria Police Districting Problem for the efficient and effective design of patrol sector},
+journal = {European Journal of Operational Research},
+volume = {246},
+number = {2},
+pages = {674-684},
+year = {2015},
+issn = {0377-2217},
+doi = {https://doi.org/10.1016/j.ejor.2015.05.023},
+url = {https://www.sciencedirect.com/science/article/pii/S0377221715004130},
+author = {M. Camacho-Collados and F. Liberatore and J.M. Angulo},
+keywords = {Location, Police Districting Problem, Multi-criteria decision making},
+abstract = {The Police Districting Problem (PDP) concerns the efficient and effective design of patrol sectors in terms of performance attributes such as workload, response time, etc. A balanced definition of the patrol sector is desirable as it results in crime reduction and in better service. In this paper, a multi-criteria Police Districting Problem defined in collaboration with the Spanish National Police Corps is presented. This is the first model for the PDP that considers the attributes of area, risk, compactness, and mutual support. The decision-maker can specify his/her preferences on the attributes, on workload balance, and efficiency. The model is solved by means of a heuristic algorithm that is empirically tested on a case study of the Central District of Madrid. The solutions identified by the model are compared to patrol sector configurations currently in use and their quality is evaluated by public safety service coordinators. The model and the algorithm produce designs that significantly improve on the current ones.}
+}
+
+
+@article{Catalyurek2023,
+author = {\c{C}ataly\"{u}rek, \"{U}mit and Devine, Karen and Faraj, Marcelo and Gottesb\"{u}ren, Lars and Heuer, Tobias and Meyerhenke, Henning and Sanders, Peter and Schlag, Sebastian and Schulz, Christian and Seemaier, Daniel and Wagner, Dorothea},
+title = {More Recent Advances in (Hyper)Graph Partitioning},
+year = {2023},
+issue_date = {December 2023},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {55},
+number = {12},
+issn = {0360-0300},
+url = {https://doi.org/10.1145/3571808},
+doi = {10.1145/3571808},
+abstract = {In recent years, significant advances have been made in the design and evaluation of balanced (hyper)graph partitioning algorithms. We survey trends of the past decade in practical algorithms for balanced (hyper)graph partitioning together with future research directions. Our work serves as an update to a previous survey on the topic&nbsp;[29]. In particular, the survey extends the previous survey by also covering hypergraph partitioning and has an additional focus on parallel algorithms.},
+journal = {ACM Comput. Surv.},
+month = mar,
+articleno = {253},
+numpages = {38},
+keywords = {Graph partitioning, hypergraph partitioning, load balancing}
+}
+
+
+@article{Chen2019,
+author = {Huanfa Chen and Tao Cheng and Xinyue Ye},
+title = {Designing efficient and balanced police patrol districts on an urban street network},
+journal = {International Journal of Geographical Information Science},
+volume = {33},
+number = {2},
+pages = {269--290},
+year = {2019},
+publisher = {Taylor \& Francis},
+doi = {10.1080/13658816.2018.1525493},
+URL = {https://doi.org/10.1080/13658816.2018.1525493},
+eprint = {https://doi.org/10.1080/13658816.2018.1525493},
+abstract = { In police planning, a territory is often divided into several patrol districts with balanced workloads, in order to repress crime and provide better police service. Conventionally, in this districting problem, there is insufficient consideration of the impacts of street networks. In this study, we propose a street-network police districting problem (SNPDP) that explicitly uses streets as basic underlying units. This model defines the workload as a combination of different attributes and seeks an efficient and balanced design of districts. We also develop an efficient heuristic to generate high-quality districting plans in an acceptable time. The capability of the algorithm is demonstrated in comparison to an exact linear programming solver on simulated datasets. The SNPDP model is successfully implemented and tested in a case study in London, and the generated police districts have different characteristics that are consistent with the crime risk and land use distribution. Besides, we demonstrate that SNPDP is superior to an aggregation grid-based model regarding the solution quality. This model has the potential to generate street-based districts with balanced workloads for other districting problems, such as school districting and health care districting. }
+}
+
+
+@article{Chopra2023,
+author = {Chopra, Sunil and Park, Hyunwoo and Shim, Sangho},
+title = {An Exact Solution Method for the Political Districting Problem},
+journal = {Parallel Processing Letters},
+volume = {33},
+number = {01n02},
+pages = {2340001},
+year = {2023},
+doi = {10.1142/S0129626423400017},
+URL = {https://doi.org/10.1142/S0129626423400017},
+eprint = {https://doi.org/10.1142/S0129626423400017},
+abstract = { Mehrotra, Johnson, and Nemhauser (1998) [Management Science 44, pp. 1100–1114] addressed a problem for political districting and developed an optimization based heuristic to find good districting plans which partition the population units into contiguous districts with equal populations. Their case study found a good South Carolina plan at a penalty cost of 68. This paper develops a strong integer programming model identifying the exact optimal solution. Our model identifies the optimal South Carolina plan at the minimum penalty of 64. Motivated by the 2019 lawsuit challenging the congressional plan as gerrymandering, we inspect the actual Maryland plan. }
+}
+
+
+@article{Cordero2025,
+author = {Cordero, Mishelle and Miniguano–Trujillo, Andrés and Recalde, Diego and Torres, Ramiro and Vaca, Polo},
+title = {Optimizing Connected Components Graph Partitioning With Minimum Size Constraints Using Integer Programming and Spectral Clustering Techniques},
+journal = {Networks},
+volume = {85},
+number = {3},
+pages = {245-260},
+keywords = {column generation, combinatorial optimization, graph partitioning, integer programming, mixed integer programming, spectral clustering},
+doi = {https://doi.org/10.1002/net.22257},
+url = {https://onlinelibrary.wiley.com/doi/abs/10.1002/net.22257},
+eprint = {https://onlinelibrary.wiley.com/doi/pdf/10.1002/net.22257},
+abstract = {ABSTRACT In this work, a graph partitioning problem in a fixed number of connected components is considered. Given an undirected graph with costs on the edges, the problem consists of partitioning the set of nodes into a fixed number of subsets with minimum size, where each subset induces a connected subgraph with minimal edge cost. The problem naturally surges in applications where connectivity is essential, such as cluster detection in social networks, political districting, sports team realignment, and energy distribution. Mixed Integer Programming formulations together with a variety of valid inequalities are demonstrated and computationally tested. An assisted column generation approach by spectral clustering is also proposed for this problem with additional valid inequalities. Finally, the methods are tested for several simulated instances, and computational results are discussed. Overall, the proposed column generation technique enhanced by spectral clustering offers a promising approach to solve clustering and partitioning problems.},
+year = {2025}
+}
+
+
+@article{Dantzig1954,
+author = {Dantzig, G. and Fulkerson, R. and Johnson, S.},
+title = {Solution of a Large-Scale Traveling-Salesman Problem},
+journal = {Journal of the Operations Research Society of America},
+volume = {2},
+number = {4},
+pages = {393-410},
+year = {1954},
+doi = {10.1287/opre.2.4.393},
+URL = {https://doi.org/10.1287/opre.2.4.393},
+eprint = {https://doi.org/10.1287/opre.2.4.393},
+abstract = { It is shown that a certain tour of 49 cities, one in each of the 48 states and Washington, D.C., has the shortest road distance. Operations Research, ISSN 0030-364X, was published as Journal of the Operations Research Society of America from 1952 to 1955 under ISSN 0096-3984. }
+}
+
+
+@inproceedings{Datta2008,
+author = {Datta, Dilip and Figueira, Jose Rui and Fonseca, Carlos M. and Tavares-Pereira, Fernando},
+title = {Graph partitioning through a multi-objective evolutionary algorithm: a preliminary study},
+year = {2008},
+isbn = {9781605581309},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/1389095.1389222},
+doi = {10.1145/1389095.1389222},
+abstract = {The graph partitioning problem has numerous applications in various scientific fields. It usually involves the effective partitioning of a graph into a number of disjoint sub-graphs/zones, and hence becomes a combinatorial optimization problem whose worst case complexity is NP-complete. The inadequacies of exact methods, like linear and integer programming approaches, to handle large-size instances of the combinatorial problems have motivated heuristic techniques to these problems. In the present work, a multi-objective evolutionary algorithm (MOEA), a kind of heuristic techniques, is developed for partitioning a graph under multiple objectives and constraints. The developed MOEA, which is a modified form of NSGA-II, is applied to four randomly generated graphs for partitioning them by optimizing three common objectives under five general constraints. The applications show that the MOEA is successful, in most of the cases, in achieving the expected results by partitioning a graph into a variable number of zones.},
+booktitle = {Proceedings of the 10th Annual Conference on Genetic and Evolutionary Computation},
+pages = {625–632},
+numpages = {8},
+keywords = {partitioning problems, multi-objective optimization, evolutionary algorithms},
+location = {Atlanta, GA, USA},
+series = {GECCO '08}
+}
+
+
+@article{Dinardo2017,
+author = {Di Nardo, A. and Di Natale, M. and Giudicianni, C. and Greco, R. and Santonastaso, G. F.},
+title = {Weighted spectral clustering for water distribution network partitioning},
+journal = {Applied Network Science},
+volume = {2},
+number = {19},
+doi = {https://doi.org/10.1007/s41109-017-0033-4},
+url = {https://link.springer.com/article/10.1007/s41109-017-0033-4},
+year = {2017}
+}
+
+
+@article{Drexl1999,
+ ISSN = {00251909, 15265501},
+ URL = {http://www.jstor.org/stable/2634841},
+ abstract = {Sales force deployment involves the simultaneous resolution of four interrelated subproblems: sales force sizing, salesman location, sales territory alignment, and sales resource allocation. The first subproblem deals with selecting the appropriate number of salesman. The salesman location aspect of the problem involves determining the location of each salesman in one sales coverage unit. Sales territory alignment may be viewed as the problem of grouping sales coverage units into larger geographic clusters called sales territories. Sales resource allocation refers to the problem of allocating scarce salesman time to the aligned sales coverage units. All four subproblems have to be resolved in order to maximize profit of the selling organization. In this paper a novel nonlinear mixed-integer programming model is formulated which covers all four subproblems simultaneously. For the solution of the model we present approximation methods capable of solving large-scale, real-world instances. The methods, which provide lower bounds for the optimal objective function value, are bench-marked against upper bounds. On average the solution gap, i.e., the difference between upper and lower bounds, is about 3%. Furthermore, we show how the methods can be used to analyze various problem settings of practical relevance. Finally, an application in the beverage industry is presented.},
+ author = {Andreas Drexl and Knut Haase},
+ journal = {Management Science},
+ number = {10},
+ pages = {1307--1323},
+ publisher = {INFORMS},
+ title = {Fast Approximation Methods for Sales Force Deployment},
+ urldate = {2026-01-11},
+ volume = {45},
+ year = {1999}
+}
+
+
+@misc{DTPM2025,
+  author = {DTPM},
+  title  = {Indice de evasión en buses del sistema de Transporte Público Metropolitano},
+  howpublished = "\url{https://www.dtpm.cl/index.php/documentos/indice-de-evasion}",
+  year = {2025}
+}
+
+
+@ARTICLE{Escalona2024,
+  author  = {Escalona, P. and Brotcorne, L. and Fortz, B. and Ramírez, M.},
+  title   = {Fare inspection patrolling under in-station selective inspection policy},
+  journal = {Annals of Operations Research}, 
+  volume  = {332},
+  year    = {2024},
+  pages   = {191-212},
+  doi     = {https://doi.org/10.1007/s10479-023-05670-2},
+  url     = {https://link.springer.com/article/10.1007/s10479-023-05670-2}
+}
+
+
+@ARTICLE{Escalona2025,
+  author  = {Escalona, P. and Brotcorne, L. and Fortz, B. and Wolf, N.},
+  title   = {Spot-fare inspection in urban bus transportation systems: strategy and unpredictability under a Stackelberg game approach},
+  journal = {Public Transport}, 
+  year    = {2025},
+  doi     = {https://doi.org/10.1007/s12469-025-00398-7},
+  url     = {https://link.springer.com/article/10.1007/s12469-025-00398-7}
+}
+
+
+@article{Etemadnia2014,
+author = {Hamideh Etemadnia and Khaled Abdelghany and Ahmed Hassan},
+title = {A network partitioning methodology for distributed traffic management applications},
+journal = {Transportmetrica A: Transport Science},
+volume = {10},
+number = {6},
+pages = {518--532},
+year = {2014},
+publisher = {Taylor \& Francis},
+doi = {10.1080/23249935.2013.795200},
+URL = {https://doi.org/10.1080/23249935.2013.795200},
+eprint = {https://doi.org/10.1080/23249935.2013.795200},
+abstract = { This paper presents a multi-way network partitioning methodology for distributed traffic management applications. The methodology can be used to partition a typical urban transportation network such that: (a) the inter-flow among the resulting subnetworks is minimised; (b) the subnetworks are balanced in terms of their sizes/flow activities; and (c) each subnetwork is connected. Two heuristics are presented. The first adopts a recursive iterative procedure to determine the network's sparsest cuts that maintain the balance and connectivity requirements. The second heuristic adopts a greedy network coarsening technique to determine the most flow-independent subnetworks. The solution quality of these two heuristics is evaluated using hypothetical and real networks with different configurations. The results show that the heuristics can obtain near-optimal solution in significantly shorter execution times. }
+}
+
+
+@article{Farughi2020,
+author = {Hiwa Farughi and Madjid Tavana and Sobhan Mostafayi and Francisco J. Santos Arteaga},
+title = {A novel optimization model for designing compact, balanced, and contiguous healthcare districts},
+journal = {Journal of the Operational Research Society},
+volume = {71},
+number = {11},
+pages = {1740--1759},
+year = {2020},
+publisher = {Taylor \& Francis},
+doi = {10.1080/01605682.2019.1621217},
+URL = {https://doi.org/10.1080/01605682.2019.1621217},
+eprint = { https://doi.org/10.1080/01605682.2019.1621217},
+abstract = { In this study, we propose a new multi-objective mathematical model for designing compact, balanced, and contiguous districts in healthcare systems. The objective functions minimize districting heterogeneity and the implementation cost of monitoring plans for promoting hygiene and public health. Expert teams perform these plans periodically by maximizing the coverage area. The purpose of the districting problem is to specify how teams are formed and allocated based on their service provision capacity and type of expertise. Improper team allocation and unsuitable service provision cause an increase in time and costs, fostering an adverse effect on the promotion of public health in the area. Compliance of the plan with the specified requirements and its implementation cost are the main factors impacting the districting problem decisions. We define two meta-heuristic algorithms including a multi-objective genetic algorithm II (NSGAII) and a multi-objective grey wolf optimizer (MOGWO) for solving the mathematical model in a real-scale because districting problems are NP-hard problems. We also present a case study taking place at a university medical centre in Iran to demonstrate the applicability and efficacy of the proposed model. }
+}
+
+
+@inproceedings{Fiduccia1982,
+author = {Fiduccia, C. M. and Mattheyses, R. M.},
+title = {A linear-time heuristic for improving network partitions},
+year = {1988},
+isbn = {0897912675},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/62882.62910},
+doi = {10.1145/62882.62910},
+booktitle = {Papers on Twenty-Five Years of Electronic Design Automation},
+pages = {241–247},
+numpages = {7},
+series = {25 years of DAC}
+}
+
+
+@article{Garcia2016,
+author = {García-Ayala, Gabriela and González-Velarde, José Luis and Ríos-Mercado, Roger Z. and Fernández, Elena},
+title = {A novel model for arc territory design: promoting Eulerian districts},
+journal = {International Transactions in Operational Research},
+volume = {23},
+number = {3},
+pages = {433-458},
+keywords = {combinatorial optimization, districting, integer linear programming, arc services},
+doi = {https://doi.org/10.1111/itor.12219},
+url = {https://onlinelibrary.wiley.com/doi/abs/10.1111/itor.12219},
+eprint = {https://onlinelibrary.wiley.com/doi/pdf/10.1111/itor.12219},
+abstract = {Abstract The problem of district design for the implementation of arc routing activities is addressed. The aim is to partition a road network into a given number of sectors to facilitate the organization of the operations to be implemented within the region. This problem arises in numerous applications such as postal delivery, meter readings, winter gritting, road maintenance, and municipal solid waste collection. An integer linear programming model is proposed where a novel set of node parity constraints to favor Eulerian districts is introduced. Series of instances were solved to assess the impact of these parity constraints on the objective function and deadhead distance. Networks with up to 401 nodes and 764 edges were successfully solved. The model is useful at a tactical level as it can be used to promote workload balance, compactness, deadhead distance reduction and parity in districts.},
+year = {2016}
+}
+
+
+@ARTICLE{Hales2001,
+  author  = {Hales, T.},
+  title   = {The Honeycomb Conjecture},
+  journal = {Discrete \& Computational Geometry}, 
+  volume  = {25},
+  year    = {2001},
+  pages   = {1–22},
+  doi     = {https://doi.org/10.1007/s004540010071}
+}
+
+
+@inproceedings{Hendrickson1995,
+author = {Hendrickson, Bruce and Leland, Robert},
+title = {A multilevel algorithm for partitioning graphs},
+year = {1995},
+isbn = {0897918169},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/224170.224228},
+doi = {10.1145/224170.224228},
+abstract = {The graph partitioning problem is that of dividing the vertices of a graph into sets of specified sizes such that few edges cross between sets. This NP-complete problem arises in many important scientific and engineering problems. Prominent examples include the decomposition of data structures for parallel computation, the placement of circuit elements and the ordering of sparse matrix computations. We present a multilevel algorithm for graph partitioning in which the graph is approximated by a sequence of increasingly smaller graphs. The smallest graph is then partitioned using a spectral method, and this partition is propagated back through the hierarchy of graphs. A variant of the Kernighan-Lin algorithm is applied periodically to refine the partition. The entire algorithm can be implemented to execute in time proportional to the size of the original graph. Experiments indicate that, relative to other advanced methods, the multilevel algorithm produces high quality partitions at low cost.},
+booktitle = {Proceedings of the 1995 ACM/IEEE Conference on Supercomputing},
+pages = {28–es},
+keywords = {circuit placement, graph partitioning, load balancing, parallel computation},
+location = {San Diego, California, USA},
+series = {Supercomputing '95}
+}
+
+
+@InProceedings{Herrera2019,
+author="Herrera-Granda, Israel D.
+and Le{\'o}n-J{\'a}come, Juan C.
+and Lorente-Leyva, Leandro L.
+and Lucano-Ch{\'a}vez, Fausto
+and Montero-Santos, Yakcleem
+and Oviedo-Pantoja, Winston G.
+and D{\'i}az-Cajas, Christian S.",
+editor="Botto-Tobar, Miguel
+and Barba-Maggi, Lida
+and Gonz{\'a}lez-Huerta, Javier
+and Villacr{\'e}s-Cevallos, Patricio
+and S. G{\'o}mez, Omar
+and Uvidia-Fassler, Mar{\'i}a I.",
+title="Subregion Districting to Optimize the Municipal Solid Waste Collection Network: A Case Study",
+booktitle="Information and Communication Technologies of Ecuador (TIC.EC)",
+year="2019",
+publisher="Springer International Publishing",
+address="Cham",
+pages="225--237",
+abstract="This paper proposes the implementation of a subregion district model to optimize the collection of solid waste generated in the residential and commercial zones of the Ibarra city in Ecuador. The work begins with a review of cases and methodologies previously applied. Later, the initial condition was determined and the optimum number of districts or sub-areas in which the zones should be divided, starting from the model proposed by the Pan American Health Organization, The City Development and Zoning Plan, and some guidelines given by the Department of Social Development of Mexico in the year 1997. Furthermore, the homogeneous distribution of the districts on the city was also carried out taking into account of factors such as: the components of the collection network, area of each district, current and available road network, surface slopes, waste production rates, collection frequency, and optimal vehicle fleet dedicated to harvesting operations. As support tools for the analyses carried out QGIS 2.18.2, MS-Excel, Global Mapper and LingoV17 were used. Finally, it proposes an optimal distribution of the districts in which the waste collection crews would operate in the city.",
+isbn="978-3-030-02828-2"
+}
+
+
+@ARTICLE{Hirose2020,
+  author  = {Hirose, A.K. and Scarpin, C.T. and Pécora Junior, J.E.},
+  title   = {Goal programming approach for political districting in Santa Catarina State: Brazil},
+  journal = {Annals of Operations Research}, 
+  volume  = {287},
+  year    = {2020},
+  pages   = {209–232},
+  doi     = {https://doi.org/10.1007/s10479-019-03295-y},
+  url     = {https://link.springer.com/article/10.1007/s10479-019-03295-y}
+}
+
+
+@article{Hvattum2020,
+title = {Multi-objective sustainable location-districting for the collection of municipal solid waste: Two case studies},
+journal = {Computers \& Industrial Engineering},
+volume = {150},
+pages = {106965},
+year = {2020},
+issn = {0360-8352},
+doi = {https://doi.org/10.1016/j.cie.2020.106965},
+url = {https://www.sciencedirect.com/science/article/pii/S0360835220306380},
+author = {Sobhan {Mostafayi Darmian} and Sahar Moazzeni and Lars Magnus Hvattum},
+keywords = {Multi-objective optimization, Local search, Best-worst method},
+abstract = {This paper presents a multi-objective location-districting optimization model for sustainable collection of municipal solid waste, motivated by strategic waste management decisions in Iran. The model aims to design an efficient system for providing municipal services by integrating the decisions regarding urban area districting and the location of waste collection centers. Three objectives are minimized, given as 1) the cost of establishing collection centers and collecting waste, 2) a measure of destructive environmental consequences, and 3) a measure of social dissatisfaction. Constraints are formulated to enforce an exclusive assignment of urban areas to districts and that the created districts are contiguous. In addition, constraints make sure that districts are compact and that they are balanced in terms of the amount of waste collected. A multi-objective local search heuristic using the farthest-candidate method is implemented to solve medium and large-scale numerical instances, while small instances can be solved directly by commercial software. A set of randomly generated test instances is used to test the effectiveness of the heuristic. The model and the heuristic are then applied to two case studies from Iran. The obtained results indicate that waste collection costs can be reduced by an estimated 20–30%, while significantly improving the performance with respect to environmental and social criteria. Thus, the provided approach can provide important decision support for making strategic choices in municipal solid waste management.}
+}
+
+
+@article{Jafari2021,
+title = {Fast shared-memory streaming multilevel graph partitioning},
+journal = {Journal of Parallel and Distributed Computing},
+volume = {147},
+pages = {140-151},
+year = {2021},
+issn = {0743-7315},
+doi = {https://doi.org/10.1016/j.jpdc.2020.09.004},
+url = {https://www.sciencedirect.com/science/article/pii/S0743731520303658},
+author = {Nazanin Jafari and Oguz Selvitopi and Cevdet Aykanat},
+keywords = {Streaming algorithms, Graph partitioning, Multilevel graph partitioning, Parallel graph partitioning},
+abstract = {A fast parallel graph partitioner can benefit many applications by reducing data transfers. The online methods for partitioning graphs have to be fast and they often rely on simple one-pass streaming algorithms, while the offline methods for partitioning graphs contain more involved algorithms and the most successful methods in this category belong to the multilevel approaches. In this work, we assess the feasibility of using streaming graph partitioning algorithms within the multilevel framework. Our end goal is to come up with a fast parallel offline multilevel partitioner that can produce competitive cutsize quality. We rely on a simple but fast and flexible streaming algorithm throughout the entire multilevel framework. This streaming algorithm serves multiple purposes in the partitioning process: a clustering algorithm in the coarsening, an effective algorithm for the initial partitioning, and a fast refinement algorithm in the uncoarsening. Its simple nature also lends itself easily for parallelization. The experiments on various graphs show that our approach is on the average up to 5.1x faster than the multi-threaded MeTiS, which comes at the expense of only 2x worse cutsize.}
+}
+
+
+@article{Jovanovic2016,
+title = {An ant colony optimization algorithm for partitioning graphs with supply and demand},
+journal = {Applied Soft Computing},
+volume = {41},
+pages = {317-330},
+year = {2016},
+issn = {1568-4946},
+doi = {https://doi.org/10.1016/j.asoc.2016.01.013},
+url = {https://www.sciencedirect.com/science/article/pii/S1568494616000272},
+author = {Raka Jovanovic and Milan Tuba and Stefan Voß},
+keywords = {Ant colony optimization, Microgrid, Graph partitioning, Demand vertex, Supply vertex, Combinatorial optimization},
+abstract = {In this paper we focus on finding high quality solutions for the problem of maximum partitioning of graphs with supply and demand (MPGSD). There is a growing interest for the MPGSD due to its close connection to problems appearing in the field of electrical distribution systems, especially for the optimization of self-adequacy of interconnected microgrids. We propose an ant colony optimization algorithm for the problem. With the goal of further improving the algorithm we combine it with a previously developed correction procedure. In our computational experiments we evaluate the performance of the proposed algorithm on trees, 3-connected graphs, series–parallel graphs and general graphs. The tests show that the method manages to find optimal solutions for more than 50% of the problem instances, and has an average relative error of less than 0.5% when compared to known optimal solutions.}
+}
+
+
+@incollection{Kalcsics2019,
+author="Kalcsics, J{\"o}rg
+and R{\'i}os-Mercado, Roger Z.",
+editor="Laporte, Gilbert
+and Nickel, Stefan
+and Saldanha da Gama, Francisco",
+title="Districting Problems",
+bookTitle="Location Science",
+year="2019",
+publisher="Springer International Publishing",
+address="Cham",
+pages="705--743",
+abstract="Districting is the problem of grouping small geographic areas, called basic units, into larger geographic clusters, called districts, such that the latter are balanced, contiguous, and compact. Balance describes the desire for districts of equitable size, for example with respect to workload, sales potential, or number of eligible voters. A district is said to be geographically compact if it is somewhat round-shaped and undistorted. Typical examples for basic units are customers, streets, or zip code areas. Districting problems are motivated by very diverse applications, ranging from political districting over the design of districts for schools, social facilities, waste collection, or winter services, to sales and service territory design. Despite the considerable number of publications on districting problems, there is no consensus on which criteria are eligible and important and, moreover, on how to measure them appropriately. Thus, one aim of this chapter is to give a broad overview of typical criteria and restrictions that can be found in various districting applications as well as ways and means to quantify and model these criteria. In addition, an overview of the different areas of application for districting problems is given and the various solution approaches for districting problems that have been used are reviewed.",
+isbn="978-3-030-32177-2",
+doi="10.1007/978-3-030-32177-2_25",
+url="https://doi.org/10.1007/978-3-030-32177-2_25"
+}
+
+
+@article{Karypis1998,
+title = {A Parallel Algorithm for Multilevel Graph Partitioning and Sparse Matrix Ordering},
+journal = {Journal of Parallel and Distributed Computing},
+volume = {48},
+number = {1},
+pages = {71-95},
+year = {1998},
+issn = {0743-7315},
+doi = {https://doi.org/10.1006/jpdc.1997.1403},
+url = {https://www.sciencedirect.com/science/article/pii/S0743731597914039},
+author = {George Karypis and Vipin Kumar},
+keywords = {parallel graph partitioning, multilevel partitioning methods, fill reducing ordering, numerical linear algebra.},
+abstract = {In this paper we present a parallel formulation of the multilevel graph partitioning and sparse matrix ordering algorithm. A key feature of our parallel formulation (that distinguishes it from other proposed parallel formulations of multilevel algorithms) is that it partitions the vertices of the graph intopparts while distributing the overall adjacency matrix of the graph among allpprocessors. This mapping results in substantially smaller communication than one-dimensional distribution for graphs with relatively high degree, especially if the graph is randomly distributed among the processors. We also present a parallel algorithm for computing a minimal cover of a bipartite graph which is a key operation for obtaining a small vertex separator that is useful for computing the fill reducing ordering of sparse matrices. Our parallel algorithm achieves a speedup of up to 56 on 128 processors for moderate size problems, further reducing the already moderate serial run time of multilevel schemes. Furthermore, the quality of the produced partitions and orderings are comparable to those produced by the serial multilevel algorithm that has been shown to outperform both spectral partitioning and multiple minimum degree.}
+}
+
+
+@ARTICLE{Kernighan1970,
+author={Kernighan, B. W. and Lin, S.},
+journal={The Bell System Technical Journal}, 
+title={An efficient heuristic procedure for partitioning graphs}, 
+year={1970},
+volume={49},
+number={2},
+pages={291-307},
+abstract={We consider the problem of partitioning the nodes of a graph with costs on its edges into subsets of given sizes so as to minimize the sum of the costs on all edges cut. This problem arises in several physical situations — for example, in assigning the components of electronic circuits to circuit boards to minimize the number of connections between boards. This paper presents a heuristic method for partitioning arbitrary graphs which is both effective in finding optimal partitions, and fast enough to be practical in solving large problems.},
+keywords={},
+doi={10.1002/j.1538-7305.1970.tb01770.x},
+ISSN={0005-8580},
+month={Feb}
+}
+
+
+@inproceedings{Lasalle2015,
+author = {LaSalle, Dominique and Patwary, Md Mostofa Ali and Satish, Nadathur and Sundaram, Narayanan and Dubey, Pradeep and Karypis, George},
+title = {Improving graph partitioning for modern graphs and architectures},
+year = {2015},
+isbn = {9781450340014},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/2833179.2833188},
+doi = {10.1145/2833179.2833188},
+abstract = {Graph partitioning is an important preprocessing step in applications dealing with sparse-irregular data. As such, the ability to efficiently partition a graph in parallel is crucial to the performance of these applications. The number of compute cores in a compute node continues to increase, demanding ever more scalability from shared-memory graph partitioners. In this paper we present algorithmic improvements to the multithreaded graph partitioner mt-Metis. We experimentally evaluate our methods on a 36 core machine, using 20 different graphs from a variety of domains. Our improvements decrease the runtime by 1.5-11.7X and improve strong scaling by 82\%.},
+booktitle = {Proceedings of the 5th Workshop on Irregular Applications: Architectures and Algorithms},
+articleno = {14},
+numpages = {4},
+location = {Austin, Texas},
+series = {IA<sup>3</sup> '15}
+}
+
+
+@article{Liberatore2022,
+author = {Liberatore, F. and Camacho-Collados, M. and Quijano-Sánchez, L.},
+title = {Equity in the Police Districting Problem: Balancing Territorial and Racial Fairness in Patrolling Operations},
+journal = {Journal of Quantitative Criminology},
+volume = {38},
+number = {1},
+pages = {1-25},
+doi = {https://doi.org/10.1007/s10940-021-09512-x},
+url = {https://link.springer.com/article/10.1007/s10940-021-09512-x},
+year = {2022}
+}
+
+
+@article{Liberatore2016,
+author = {Liberatore, F. and Camacho-Collados, M.},
+title = {A Comparison of Local Search Methods for the Multicriteria Police Districting Problem on Graph},
+journal = {Mathematical Problems in Engineering},
+volume = {2016},
+number = {1},
+pages = {3690474},
+doi = {https://doi.org/10.1155/2016/3690474},
+url = {https://onlinelibrary.wiley.com/doi/abs/10.1155/2016/3690474},
+eprint = {https://onlinelibrary.wiley.com/doi/pdf/10.1155/2016/3690474},
+abstract = {In the current economic climate, law enforcement agencies are facing resource shortages. The effective and efficient use of scarce resources is therefore of the utmost importance to provide a high standard public safety service. Optimization models specifically tailored to the necessity of police agencies can help to ameliorate their use. The Multicriteria Police Districting Problem (MC-PDP) on a graph concerns the definition of sound patrolling sectors in a police district. The objective of this problem is to partition a graph into convex and continuous subsets, while ensuring efficiency and workload balance among the subsets. The model was originally formulated in collaboration with the Spanish National Police Corps. We propose for its solution three local search algorithms: a Simple Hill Climbing, a Steepest Descent Hill Climbing, and a Tabu Search. To improve their diversification capabilities, all the algorithms implement a multistart procedure, initialized by randomized greedy solutions. The algorithms are empirically tested on a case study on the Central District of Madrid. Our experiments show that the solutions identified by the novel Tabu Search outperform the other algorithms. Finally, research guidelines for future developments on the MC-PDP are given.},
+year = {2016}
+}
+
+
+@article{Lin2008,
+author = {Hung-Yueh Lin and Jehng-Jung Kao},
+title = {Subregion Districting Analysis for Municipal Solid Waste Collection Privatization},
+journal = {Journal of the Air \& Waste Management Association},
+volume = {58},
+number = {1},
+pages = {104--111},
+year = {2008},
+publisher = {Taylor \& Francis},
+doi = {10.3155/1047-3289.58.1.104},
+URL = {https://doi.org/10.3155/1047-3289.58.1.104},
+eprint = {https://doi.org/10.3155/1047-3289.58.1.104},
+abstract = { Privatization of municipal solid waste (MSW) collection can improve service quality and reduce cost. To reduce the risk of an incapable company serving an entire collection area and to establish a competitive market, a large collection area should be divided into two or more sub-regions, with each sub-region served by a different company. The MSW sub-region districting is generally done manually, based on the planner’s intuition. Major drawbacks of a manual approach include the creation of a districting plan with poor road network integrity for which it is difficult to design an efficient collection route. The other drawbacks are difficulty in finding the optimal districting plan and the lack of a way to consistently measure the differences among sub-regions to avoid unfair competition. To determine an MSW collection sub-region districting plan, this study presents a mixed-integer optimization model that incorporates factors such as compactness, road network integrity, collection cost, and regional proximity. Two cases are presented to demonstrate the applicability of the proposed model. In both cases, districting plans with good road network integrity and regional proximity have been generated successfully. }
+}
+
+
+@incollection{Moya2020,
+author="Moya-Garc{\'i}a, Juan G.
+and Salazar-Aguilar, M. Ang{\'e}lica",
+editor="R{\'i}os-Mercado, Roger Z.",
+title="Territory Design for Sales Force Sizing",
+bookTitle="Optimal Districting and Territory Design",
+year="2020",
+publisher="Springer International Publishing",
+address="Cham",
+pages="191--206",
+abstract="In sales territory design applications, a sales force team is in charge of performing recurring visits to the customers and typically, each territory is assigned to a sales representative with the aim to establish long-term personal relationship with the customers. At the strategic level, the decision maker must partition the set of customer in sales territories and at the tactical level, the daily routes (schedule of visits) of the sales representatives must be planned. Balanced sales territories allow better customer coverage and balanced workload. Additionally, efficient routes allow to perform more visits and to reduce the travel time. In this work, we focus in an application of territory design for determining the size of the sales force in a Mexican company. We also describe a simple heuristic for this problem and analyze its performance in two real cases from the company. Computational results show that the proposed heuristic produces high-quality solutions within a low computation time.",
+isbn="978-3-030-34312-5",
+doi="10.1007/978-3-030-34312-5_10",
+url="https://doi.org/10.1007/978-3-030-34312-5_10"
+}
+
+
+@article{Newman2013,
+title = {Spectral methods for community detection and graph partitioning},
+author = {Newman, M. E. J.},
+journal = {Phys. Rev. E},
+volume = {88},
+issue = {4},
+pages = {042822},
+numpages = {10},
+year = {2013},
+month = {Oct},
+publisher = {American Physical Society},
+doi = {10.1103/PhysRevE.88.042822},
+url = {https://link.aps.org/doi/10.1103/PhysRevE.88.042822}
+}
+
+
+@article{Oehrlein2017,
+author = {Oehrlein, Johannes and Haunert, Jan-Henrik},
+year = {2017},
+month = {12},
+pages = {},
+title = {A cutting-plane method for contiguity-constrained spatial aggregation},
+journal = {Journal of Spatial Information Science},
+doi = {10.5311/JOSIS.2017.15.379}
+}
+
+
+@incollection{Pellegrini1996,
+author="Pellegrini, Fran{\c{c}}ois
+and Roman, Jean",
+editor="Liddell, Heather
+and Colbrook, Adrian
+and Hertzberger, Bob
+and Sloot, Peter",
+title="Scotch: A software package for static mapping by dual recursive bipartitioning of process and architecture graphs",
+booktitle="High-Performance Computing and Networking",
+year="1996",
+publisher="Springer Berlin Heidelberg",
+address="Berlin, Heidelberg",
+pages="493--498",
+abstract="The combinatorial optimization problem of assigning the communicating processes of a parallel program onto a parallel machine so as to minimize its overall execution time is called static mapping.",
+isbn="978-3-540-49955-8",
+doi = {https://doi.org/10.1007/3-540-61142-8_588},
+url = {https://link.springer.com/chapter/10.1007/3-540-61142-8_588}
+}
+
+
+@article{Perrier2006,
+title = {A survey of models and algorithms for winter road maintenance. Part I: system design for spreading and plowing},
+journal = {Computers \& Operations Research},
+volume = {33},
+number = {1},
+pages = {209-238},
+year = {2006},
+issn = {0305-0548},
+doi = {https://doi.org/10.1016/j.cor.2004.07.006},
+url = {https://www.sciencedirect.com/science/article/pii/S0305054804001625},
+author = {Nathalie Perrier and André Langevin and James F. Campbell},
+keywords = {Winter road maintenance, Snow removal, Snow disposal, Snow hauling, Operations research},
+abstract = {Winter road maintenance operations involve a host of decision-making problems at the strategic, tactical, operational, and real-time levels. Those operations include spreading of chemicals and abrasives, snow plowing, loading snow into trucks, and hauling snow to disposal sites. As the first of a four-part survey, this paper reviews optimization models and solution algorithms for the design of winter road maintenance systems for spreading and plowing operations. System design problems for snow disposal operations are discussed in the second paper. The two last parts of the survey mainly address vehicle routing, depot location, and fleet sizing models for winter road maintenance. The present paper surveys research on determining the level of service policy and partitioning a region or road network into sectors for spreading and plowing operations. We also describe the applied setting in which these problems arise.}
+}
+
+
+@article{Picard1975,
+author = {Picard, J. C. and Ratliff, H. D.},
+title = {Minimum cuts and related problems},
+journal = {Networks},
+volume = {5},
+number = {4},
+pages = {357-370},
+doi = {https://doi.org/10.1002/net.3230050405},
+url = {https://onlinelibrary.wiley.com/doi/abs/10.1002/net.3230050405},
+eprint = {https://onlinelibrary.wiley.com/doi/pdf/10.1002/net.3230050405},
+abstract = {Abstract This paper is concerned with an integer programming characterization of a cut in a network. This characterization provides a fundamental equivalence between directed pseudosymmetric networks and undirected networks. It also identifies a class of problems which can be solved as minimum cut problems on a network.},
+year = {1975}
+}
+
+
+@article{Pothen1990,
+author = {Pothen, Alex and Simon, Horst D. and Liou, Kang-Pu},
+title = {Partitioning Sparse Matrices with Eigenvectors of Graphs},
+journal = {SIAM Journal on Matrix Analysis and Applications},
+volume = {11},
+number = {3},
+pages = {430-452},
+year = {1990},
+doi = {10.1137/0611030},
+URL = {https://doi.org/10.1137/0611030},
+eprint = {https://doi.org/10.1137/0611030},
+abstract = { The problem of computing a small vertex separator in a graph arises in the context of computing a good ordering for the parallel factorization of sparse, symmetric matrices. An algebraic approach for computing vertex separators is considered in this paper. It is, shown that lower bounds on separator sizes can be obtained in terms of the eigenvalues of the Laplacian matrix associated with a graph. The Laplacian eigenvectors of grid graphs can be computed from Kronecker products involving the eigenvectors of path graphs, and these eigenvectors can be used to compute good separators in grid graphs. A heuristic algorithm is designed to compute a vertex separator in a general graph by first computing an edge separator in the graph from an eigenvector of the Laplacian matrix, and then using a maximum matching in a subgraph to compute the vertex separator. Results on the quality of the separators computed by the spectral algorithm are presented, and these are compared with separators obtained from other algorithms for computing separators. Finally, the time required to compute the Laplacian eigenvector is reported, and the accuracy with which the eigenvector must be computed to obtain good separators is considered. The spectral algorithm has the advantage that it can be implemented on a medium-size multiprocessor in a straightforward manner. }
+}
+
+
+@ARTICLE{Ricca2013,
+  author  = {Ricca, F. and Scozzari, A. and Simeone, B.},
+  title   = {Political Districting: from classical models to recent approaches},
+  journal = {Annals of Operations Research}, 
+  volume  = {204},
+  year    = {2013},
+  pages   = {271-299},
+  doi     = {https://doi.org/10.1007/s10479-012-1267-2},
+  url     = {https://link.springer.com/article/10.1007/s10479-012-1267-2}
+}
+
+
+@article{Ricca2016,
+author = {Lari, Isabella and Ricca, Federica and Puerto, Justo and Scozzari, Andrea},
+title = {Partitioning a graph into connected components with fixed centers and optimizing cost-based objective functions or equipartition criteria},
+journal = {Networks},
+volume = {67},
+number = {1},
+pages = {69-81},
+keywords = {p-centered partitions, tree partitioning, flat costs, min-sum criterion, min-max criterion, range criterion, uniform partitions, exactly uniform 2-centered partition, capacitated partitions},
+doi = {https://doi.org/10.1002/net.21661},
+url = {https://onlinelibrary.wiley.com/doi/abs/10.1002/net.21661},
+eprint = {https://onlinelibrary.wiley.com/doi/pdf/10.1002/net.21661},
+abstract = {We consider a connected graph G with n vertices, p of which are centers, while the remaining ones are units. For each unit-center pair, there is a fixed assignment cost and for each vertex there is a nonnegative weight. In this article, we study the problem of partitioning G into p connected components such that each component contains exactly one center (p-centered partition). We analyze different optimization problems of this type by defining different objective functions based on the assignment costs, or on the vertices' weights, or on both of them. For these problems, we show that they are NP-hard on very special classes of graphs, and for some of them we provide polynomial time algorithms when G is a tree. © 2015 Wiley Periodicals, Inc. NETWORKS, Vol. 67(1), 69–81 2016},
+year = {2016}
+}
+
+
+@article{Rios2013,
+title = {Commercial territory design planning with realignment and disjoint assignment requirements},
+journal = {Omega},
+volume = {41},
+number = {3},
+pages = {525-535},
+year = {2013},
+issn = {0305-0483},
+doi = {https://doi.org/10.1016/j.omega.2012.08.002},
+url = {https://www.sciencedirect.com/science/article/pii/S0305048312001090},
+author = {Roger Z. Ríos-Mercado and J. Fabián López-Pérez},
+keywords = {Bottled beverage distribution, Commercial districting, Mixed-integer linear programming, Branch-and-bound method, Heuristics},
+abstract = {A territory design problem motivated by a bottled beverage distribution company is addressed. The problem consists of finding a partition of the entire set of city blocks into a given number of territories subject to several planning criteria. Each unit has three measurable activities associated to it, namely, number of customers, product demand, and workload. The plan must satisfy planning criteria such as territory compactness, territory balancing with respect to each of the block activity measures, and territory connectivity, meaning that there must exist a path between any pair of units in a territory totally contained in it. In addition, there are some disjoint assignment requirements establishing that some specified units must be assigned to different territories, and a similarity with existing plan requirement. An optimal design is one that minimizes a measure of territory dispersion and similarity with existing design. A mixed-integer linear programming model is presented. This model is unique in the commercial territory design literature as it incorporates the disjoint assignment requirements and similarity with existing plan. Previous methods developed for related commercial districting problems are not applicable. A solution procedure based on an iterative cut generation strategy within a branch-and-bound framework is proposed. The procedure aims at solving large-scale instances by incorporating several algorithmic strategies that helped reduce the problem size. These strategies are evaluated and tested on some real-world instances of 5000 and 10,000 basic units. The empirical results show the effectiveness of the proposed method and strategies in finding near optimal solutions to these very large instances at a reasonably small computational effort.}
+}
+
+
+@article{Rios2016,
+title = {GRASP with path relinking for commercial districting},
+journal = {Expert Systems with Applications},
+volume = {44},
+pages = {102-113},
+year = {2016},
+issn = {0957-4174},
+doi = {https://doi.org/10.1016/j.eswa.2015.09.019},
+url = {https://www.sciencedirect.com/science/article/pii/S0957417415006338},
+author = {Roger Z. Ríos-Mercado and Hugo Jair Escalante},
+keywords = {Service industry, Districting, Metaheuristics, GRASP, Path relinking},
+abstract = {The problem of grouping basic units into larger geographic territories subject to dispersion, connectivity, and balance requirements is addressed. The problem is motivated by a real-world application from the bottled beverage distribution industry. Typically, a dispersion function is minimized as compact territories are sought. Existing literature reveals that practically all the works on commercial districting use center-based dispersion functions. These center-based functions yield mixed-integer programming models with some nice properties; however, they have the disadvantage of being very costly to be properly evaluated when used within heuristic frameworks. This is due to the center updating operations frequently needed through the heuristic search. In this work, a more robust dispersion measure based on the diameter of the formed territories is studied. This allows a more efficient heuristic search computation. For solving this particular territory design problem, a greedy randomized adaptive search procedure (GRASP) that incorporates a novel construction procedure where territories are formed simultaneously in two main stages using different criteria is proposed. This also differs from previous literature where GRASP was used to build one territory at a time. The GRASP is further enhanced with two variants of forward-backward path relinking, namely static and dynamic. Path relinking is a sophisticated and very successful search mechanism. This idea is novel in any districting or territory design application to the best of our knowledge. The proposed algorithm and its components have been extensively evaluated over a wide set of data instances. Experimental results reveal that the construction mechanism produces feasible solutions of acceptable quality, which are improved by an effective local search procedure. In addition, empirical evidence indicate that the two path relinking strategies have a significant impact on solution quality when incorporated within the GRASP framework. The ideas and components of the developed method can be further extended to other districting problems under balancing and connectivity constraints.}
+}
+
+
+@ARTICLE{Salazar2011,
+  author  = {Salazar-Aguilar, M. A. and Ríos-Mercado, R. Z. and Cabrera-Ríos, M.},
+  title   = {New Models for Commercial Territory Design},
+  journal = {Networks and Spatial Economics}, 
+  volume  = {11},
+  year    = {2011},
+  pages   = {487–507},
+  doi     = {https://doi.org/10.1007/s11067-010-9151-6},
+  url     = {https://link.springer.com/article/10.1007/s11067-010-9151-6}
+}
+%sales districting
+
+
+@inproceedings{Sanders2012,
+author = {Sanders, Peter and Schulz, Christian},
+title = {Distributed evolutionary graph partitioning},
+year = {2012},
+publisher = {Society for Industrial and Applied Mathematics},
+address = {USA},
+abstract = {We present a novel distributed evolutionary algorithm, KaFFPaE, to solve the Graph Partitioning Problem, which makes use of KaFFPa (Karlsruhe Fast Flow Partitioner). The use of our multilevel graph partitioner KaFFPa provides new effective crossover and mutation operators. By combining these with a scalable communication protocol we obtain a system that is able to improve the best known partitioning results for many inputs in a very short amount of time. For example, in Walshaw's well known benchmark tables we are able to improve or recompute 76\% of entries for the tables with 1\%, 3\% and 5\% imbalance.},
+booktitle = {Proceedings of the Meeting on Algorithm Engineering \& Expermiments},
+pages = {16–29},
+numpages = {14},
+location = {Kyoto, Japan},
+series = {ALENEX '12}
+}
+
+
+@incollection{Sanders2011,
+author="Sanders, Peter
+and Schulz, Christian",
+editor="Demetrescu, Camil
+and Halld{\'o}rsson, Magn{\'u}s M.",
+title="Engineering Multilevel Graph Partitioning Algorithms",
+booktitle="Algorithms -- ESA 2011",
+year="2011",
+publisher="Springer Berlin Heidelberg",
+address="Berlin, Heidelberg",
+pages="469--480",
+abstract="We present a multi-level graph partitioning algorithm using novel local improvement algorithms and global search strategies transferred from multigrid linear solvers. Local improvement algorithms are based on max-flow min-cut computations and more localized FM searches. By combining these techniques, we obtain an algorithm that is fast on the one hand and on the other hand is able to improve the best known partitioning results for many inputs. For example, in Walshaw's well known benchmark tables we achieve 317 improvements for the tables at 1{\%}, 3{\%} and 5{\%} imbalance. Moreover, in 118 out of the 295 remaining cases we have been able to reproduce the best cut in this benchmark.",
+isbn="978-3-642-23719-5"
+}
+
+
+@article{Sandoval2022,
+title = {A novel districting design approach for on-time last-mile delivery: An application on an express postal company},
+journal = {Omega},
+volume = {113},
+pages = {102687},
+year = {2022},
+issn = {0305-0483},
+doi = {https://doi.org/10.1016/j.omega.2022.102687},
+url = {https://www.sciencedirect.com/science/article/pii/S0305048322000949},
+author = {M. Gabriela Sandoval and Eduardo Álvarez-Miranda and Jordi Pereira and Roger Z. Ríos-Mercado and Juan A. Díaz},
+keywords = {Districting, Last-mile delivery, Postal delivery, Supply chain management, Heuristics},
+abstract = {Last-mile logistics corresponds to the last leg of the supply chain, i.e., the delivery of goods to final customers, and they comprise the core activities of postal and courier companies. Because of their role in the supply chain, last-mile operations are critical for the perception of customers regarding the performance of the whole logistic process. In this sense, the sustained growth of e-commerce, which has been abruptly catalyzed by the irruption of the COVID-19 pandemic, has hanged the habits of customers and overtaxed the operational side of delivery companies, hindering their viability and forcing their adaptation to the novel conditions. Many of these habits will remain after we overcome the sanitary crisis, which will permanently reshape the structure and emphasis of postal supply chains, demanding companies to implement organizational and operational changes to adapt to these new challenges. In this work we address a last-mile logistic design problem faced by a courier and delivery company in Chile, although the same problem is likely to arise in the last-mile delivery operation of other postal companies, in particular in the operation of express delivery services. The operational structure of the company is based on the division of an urban area into smaller territories (districts) and the outsourcing of the delivery operation of each territory to a last-mile contractor. Because of the increasing volume of postal traffic and a decreasing performance of the service, in particular for the case of express deliveries, the company is forced to redesign its current territorial arrangement. Such redesign results in a novel optimization problem that resembles a classical districting problem with the additional quality of service requirements. This novel problem is first formulated as a mathematical programming model and then a specially tailored heuristic is designed for solving it. The proposed approach is tested on instances from the real-life case study, and the obtained results show significant improvements in terms of the percentage of on-time deliveries achieved by the proposed solution when compared to the current districting design of the company. By performing a sensitivity analysis considering different levels of demand, we show that the proposed approach is effective in providing districting designs capable of enduring significant increases in the demand for express postal services.}
+}
+
+
+@misc{Schöbel2025,
+title={Fare Structure Design in Public Transport}, 
+author={Anita Schöbel and Reena Urban},
+year={2025},
+eprint={2502.08228},
+archivePrefix={arXiv},
+primaryClass={math.OC},
+url={https://arxiv.org/abs/2502.08228}, 
+}
+
+
+@article{Shirabe2009,
+author = {Takeshi Shirabe},
+title ={Districting Modeling with Exact Contiguity Constraints},
+journal = {Environment and Planning B: Planning and Design},
+volume = {36},
+number = {6},
+pages = {1053-1066},
+year = {2009},
+doi = {10.1068/b34104},
+URL = {https://doi.org/10.1068/b34104},
+eprint = {https://doi.org/10.1068/b34104},
+abstract = { A classic problem in planning is districting, which aims to partition a given area into a specified number of subareas according to required criteria. Size, compactness, and contiguity are among the most frequently used districting criteria. While size and compactness may be interpreted differently in different contexts, contiguity is an unambiguous topological property. A district is said to be contiguous if all locations in it are ‘connected’—that is, one can travel between any two locations in the district without leaving it. This paper introduces a new integer-programming-based approach to districting modeling, which enforced contiguity constraints independently of any other criteria that might be additionally imposed. Three experimental models are presented, and tested with sample data on the forty-eight conterminous US states. A major implication of this paper is that the exact formulation of a contiguity requirement allows planners to address diverse sets of districting criteria. }
+}
+
+
+@article{Simeone2008,
+title = {Weighted Voronoi region algorithms for political districting},
+journal = {Mathematical and Computer Modelling},
+volume = {48},
+number = {9},
+pages = {1468-1477},
+year = {2008},
+note = {Mathematical Modeling of Voting Systems and Elections: Theory and Applications},
+issn = {0895-7177},
+doi = {https://doi.org/10.1016/j.mcm.2008.05.041},
+url = {https://www.sciencedirect.com/science/article/pii/S0895717708001866},
+author = {Federica Ricca and Andrea Scozzari and Bruno Simeone},
+keywords = {Political districting, Weighted Voronoi regions, Graph partitioning, Heuristics},
+abstract = {Political districting on a given territory can be modelled as bi-objective partitioning of a graph into connected components. The nodes of the graph represent territorial units and are weighted by populations; edges represent pairs of geographically contiguous units and are weighted by road distances between the two units. When a majority voting rule is adopted, two reasonable objectives are population equality and compactness. The ensuing combinatorial optimization problem is extremely hard to solve exactly, even when only the single objective of population equality is considered. Therefore, it makes sense to use heuristics. We propose a new class of them, based on discrete weighted Voronoi regions, for obtaining compact and balanced districts, and discuss some formal properties of these algorithms. These algorithms feature an iterative updating of the distances in order to balance district populations as much as possible. Their performance has been tested on randomly generated rectangular grids, as well as on real-life benchmarks; for the latter instances the resulting district maps are compared with the institutional ones adopted in the Italian political elections from 1994 to 2001.}
+}
+
+
+@ARTICLE{Tavares2007,
+  author  = {Fernando {Tavares Pereira} and José Rui Figueira and Vincent Mousseau and Bernard Roy},
+  title   = {Multiple criteria districting problems-The public transportation network pricing system of the Paris region},
+  journal = {Annals of Operations Research}, 
+  volume  = {154(1)},
+  year    = {2007},
+  pages   = {69–92},
+  doi     = {https://doi.org/10.1007/s10479-007-0181-5},
+  url     = {https://link.springer.com/article/10.1007/s10479-007-0181-5}
+}
+
+
+@Article{Toregas1971,
+journal={Operations Research},
+author={Constantine Toregas and Ralph Swain and Charles ReVelle and Lawrence Bergman},
+title={The Location of Emergency Service Facilities},
+year={1971},
+month={October},
+pages={1363-1373},
+volume={19},
+number={6},
+abstract={This paper views the location of emergency facilities as a set covering problem with equal costs in the objective. The sets are composed of the potential facility points within a specified time or distance of each demand point. One constraint is written for each demand point requiring â€œcover,â€ and linear programming is applied to solve the covering problem, a single-cut constraint being added as necessary to resolve fractional solutions.},
+keywords={},
+doi={10.1287/opre.19.6.1363},
+url={https://pubsonline.informs.org/doi/abs/10.1287/opre.19.6.1363},
+}
+
+
+@article{Wang2021,
+title = {Simultaneous node and link districting in transportation networks: Model, algorithms and railway application},
+journal = {European Journal of Operational Research},
+volume = {292},
+number = {1},
+pages = {73-94},
+year = {2021},
+issn = {0377-2217},
+doi = {https://doi.org/10.1016/j.ejor.2020.10.013},
+url = {https://www.sciencedirect.com/science/article/pii/S0377221720308894},
+author = {Dian Wang and Jun Zhao and Andrea D’Ariano and Qiyuan Peng},
+keywords = {Transportation, Districting, Mixed integer linear programming, Column generation, Iterative search},
+abstract = {Partitioning a large network into multiple subnetworks is adopted extensively in various practical applications involving the architecture of distributed management. In this study, we consider strategic simultaneous node and link districting to partition the nodes and links of a given transportation network into a fixed number of mutually disjoint districts, based on the districting criteria of integrity, contiguity, balance, and independence. We first formulate the resulting problem as a mixed integer linear programming model to minimize the weighted sum of the total size deviation of districts and total cooperation between districts. An improved network flow-based technique is proposed to incorporate the complicated contiguity criterion by using a polynomial number of constraints. Valid inequalities, which break the symmetry within and between districts, are designed to strengthen the model. To solve this challenge problem, we reformulate it as a binary linear programming model, and develop a column generation-based algorithm to find tight lower bounds and good-quality solutions. Then, an iterative search algorithm is designed to obtain good-quality solutions rapidly. Furthermore, a more efficient hybrid algorithm is proposed by using the results of the iterative search algorithm to initialize the column generation-based algorithm. We assess the proposed model and algorithms by using various scales of instances derived from the train dispatcher desk districting problem, which is a practical application of the investigated problem in the context of railway. The computational results reveal that our approaches outperform existing approaches and a commercial solver, and our best algorithm can solve almost all the investigated instances to optimality within a considerably short average computation time. The districting solutions of our approaches are also better than the empirical solutions designed by railway managers mainly based on experience.}
+}
+
+
+@article{Xie2016,
+title = {Railroad caller districting with reliability, contiguity, balance, and compactness considerations},
+journal = {Transportation Research Part C: Emerging Technologies},
+volume = {73},
+pages = {65-76},
+year = {2016},
+issn = {0968-090X},
+doi = {https://doi.org/10.1016/j.trc.2016.10.008},
+url = {https://www.sciencedirect.com/science/article/pii/S0968090X16301930},
+author = {Siyang Xie and Yanfeng Ouyang},
+keywords = {Districting, Reliability, Contiguity, Workload balance, Compactness},
+abstract = {Railroad companies rely on good call centers to reliably handle incoming crew/resource call demands so as to maintain efficient operations and customer services in their networks. This paper formulates a reliable caller districting problem which aims at partitioning an undirected network into a fixed number of districts. The demand of each district is assigned to crew caller desks (one primary desk, multiple backups) under possible desk disruption scenarios. We simultaneously take into account several operational criteria, such as district contiguity and compactness, workload balance, and caller desk service reliability. The resulted districting problem is modeled in the form of a challenging mixed-integer program, and we develop a customized heuristic algorithm (based on constructive heuristic and neighborhood search) to provide near-optimum solutions in a reasonable amount of time. Hypothetical and empirical numerical examples are presented to demonstrate the performance and effectiveness of our methodology for different network sizes and parameter settings. Managerial insights are also drawn.}
+}
+
+@article{Zhang2013,
+title = {Police patrol districting method and simulation evaluation using agent-based model \& GIS},
+journal = {Security Informatics},
+volume = {2},
+number = {7},
+year = {2013},
+doi = {https://doi.org/10.1186/2190-8532-2-7},
+url = {https://link.springer.com/article/10.1186/2190-8532-2-7},
+author = {Zhang, Y. and Brown, D. E.}
+}
+
+
+\end{filecontents}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frontmatter}
+\title{\textcolor{red}{Balanced fare inspection districts for large-scale urban bus transportation systems: a workload-sharing approach}}
+
+
+\author[af:1]{Pablo Escalona \corref{cor}}\ead{pablo.escalona@usm.cl} %% Author name
+\author[af:2]{Luce Brotcorne}\ead{luce.brotcorne@inria.fr}
+\author[af:1]{Daniel Cerda}\ead{daniel.cerdac@usm.cl}
+\author[af:2]{Nathalia Wolf}\ead{nathalia.wolf@inria.fr}
+\author[af:3]{Pablo Torrealba}\ead{pablo.torrealba@pucv.cl}
+
+\cortext[cor]{Corresponding author}
+
+%% Author affiliation
+\affiliation[af:1]{organization={Department of Industrial Engineering, Universidad Técnica Federico Santa María},%Department and Organization
+            addressline={Avenida España 1680}, 
+            city={Valparaíso},
+            postcode={2340000}, 
+            %state={Valparaíso},
+            country={Chile}}
+
+\affiliation[af:2]{organization={Univ. Lille, Inria, CNRS, Centrale Lille, UMR 9189 CRIStAL},%Department and Organization
+            %addressline={40 Avenue Halley}, 
+            city={Lille},
+            %postcode={59650}, 
+            %state={Villeneuve d’Ascq},
+            country={France}}
+
+\affiliation[af:3]{organization={School of Industrial Engineering, Pontificia Universidad Cat\'olica de Valparaíso},%Department and Organization
+            %addressline={Avenida España 1680}, 
+            city={Valparaíso},
+            postcode={2340000}, 
+            %state={Valparaíso},
+            country={Chile}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{abstract}
+\textcolor{red}{To inhibit fare evasion in proof-of-payment bus transportation systems, the transit authority schedules unpredictable passenger inspections conducted by inspection teams.
+The heterogeneous operating conditions and workloads faced by fare inspectors can be addressed by partitioning the transportation network into districts that ensure the efficient allocation of inspection teams to/from their assignments, as well as the fair distribution of the workload among inspection teams.
+In this paper, we address the design of compact and balanced districts under an on-board fare inspection system, where the workload is defined in terms of the number of buses.}
+\textcolor{red}{Since buses move throughout the transportation network, the workload is shared among bus stops, defining a novel districting problem.}
+\textcolor{red}{The problem of districting a bus transportation network under shared workload is formulated as a mixed-integer programming model for which a cutting-plane based branch-and-cut solution approach is proposed.} 
+\textcolor{red}{The computational results highlight the effectiveness of the solution approach for large-scale networks when a tessellation technique and a well-designed restricted set of candidate district centers are used.
+Furthermore, we observe that a more balanced network design in terms of the number of buses leads to unbalanced designs in terms of geographic size.}
+\end{abstract}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%Graphical abstract
+%\begin{graphicalabstract}
+%\includegraphics{grabs}
+%\end{graphicalabstract}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%Research highlights
+\begin{highlights}
+\item Balance in terms of number of buses requires a non-additive district workload approach
+\item A cutting-plane based branch-and-cut approach can handle contiguity efficiently
+\item A tessellation technique allows \textcolor{red}{for the districting} of large-scale transportation systems
+\end{highlights}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Keywords
+\begin{keyword}
+\textcolor{red}{Districting} \sep urban bus system \sep fare evasion \sep \textcolor{red}{branch-and-cut} 
+\end{keyword}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{frontmatter}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction} \label{sec:introduction}
+
+\textcolor{red}{Passenger inspections and the fine enforcement are the most relevant measures to control and inhibit fare evasion in proof-of-payment transportation systems without barriers \citep{BARABINO2024101238, BARABINO2024100101,BARABINO2023100854, wolfgram2022measuring, multisystems2002toolkit}. 
+These enforcement measures are labor-intensive in large-scale proof-of-payment urban bus transportation systems (POP-UBTSs) due to the spatial-temporal size of bus networks and the number of users during the day. 
+For instance, the bus system of Santiago, Chile, transports more than two million passengers daily and has 11720 stops, 710 bus routes, and 7653 buses on a network of 3206 kilometers \citep{DTPM2025}.  
+In practice, fare inspection teams in POP-UBTSs are randomly allocated daily to control the bus network because the key characteristic of passenger inspections should be their unpredictability from the passengers’ perspective \citep{Brotcorne2021, Escalona2024, Escalona2025}.  
+This random allocation leads inspection teams to heterogeneous operational and workload conditions, where the workload refers to the intensity of job assignments \citep{nwinyokpugi2018workload}.
+On the one hand, fare inspectors spend a significant portion of their workday traveling from their reporting locations to their assigned inspection paths (or sites), which affects the productivity of the fare inspection system \cite{NAP26514}. 
+On the other hand, systematic variability in workload leads to dissatisfaction, turnover, and reduced productivity of inspection personnel \citep{inegbedion2020perception}, as well as labor disputes between the transit authority and the inspection personnel unions.
+To ensure the efficient allocation of inspection teams in terms of travel time to/from assignments, and the fairness distribution of the workload among inspection teams, the transit authority can district the POP-UBTS similar to police or service districting.}
+
+\textcolor{red}{Districting, also known or commonly referred to as re-districting or territory design, is the problem of grouping small geographic areas, denoted basic units, into a predefined number of geographic clusters, denoted districts \citep{Kalcsics2019}. 
+In recent decades, districting has been applied in a wide variety of contexts to ensure the efficient allocation and fair distribution of resources, including political districting \citep{Bozkaya2011, Chopra2023, Ricca2016}, police patrol districting \citep{Camacho2015, Liberatore2022}, solid waste collection \citep{Herrera2019, Lin2008}, postal logistics \citep{Alvarez2025, Sandoval2022}, and commercial territory planning \citep{Moya2020, Rios2016, Salazar2011}.
+The districting problem is typically reduced to a classic graph-partition problem where basic units are represented by nodes or edges. 
+Four design criteria are distinguished in the districting problem, defined as 
+integrity, contiguity, compactness, and balance \citep{Simeone2008, Ricca2013, Shirabe2009}.}
+Integrity guarantees that each basic unit belongs to only one district.
+Contiguity ensures that it is possible to reach any basic unit in a district from any other one in the same district without leaving it, i.e., it ensures the connectivity of districts \citep{Arredondo2021}.
+Compactness provides districts with regular shapes or minimal dispersion of their basic units, and is typically handled as an objective function \citep{Borndorfer2023}. 
+Balance ensures a fair distribution of workload among districts \citep{Alvarez2025}. 
+\textcolor{red}{The integrity, contiguity, and compactness are topological criteria, whereas the balance is a fairness criterion.}
+
+\textcolor{red}{Under the design criteria described above, the districts in a large-scale POP-UBTS are expected to be compact and balanced to ensure the efficient allocation of inspection teams and the fairness distribution of the workload, respectively. 
+Furthermore, in a fare inspection system operating under a \textit{patrolling deployment policy}, where each inspection team follows a spatio-temporal path verifying fare payment at different sites in the transportation network during their workday \citep{ Brotcorne2021, Escalona2024, barabino2025comparing},  compact and contiguous districts are desirable because patrols are temporally and spatially contained within bounded geographic areas. 
+This prevents fare inspection patrols from starting and ending at arbitrary stops across the transportation network, as in \cite{Brotcorne2021, Escalona2024, yin2012trusts, jiang2013game, jiang2012towards, delfau2018optimization}.
+In a fare inspection system operating under a \textit{spot deployment policy}, where each inspection team is allocated to a
+specific site of the transportation network and remain there verifying fare payments during a given time interval \citep{Escalona2025}, integral and compact districts are desirable to avoid duplication of assignments and to minimize travel time to/from site allocated, respectively.}
+
+\textcolor{red}{Two approaches can be distinguished for measuring workload in a POP-UBTS. 
+The first one is to measure workload as the number of passengers who alight from (or board) buses at each stop. 
+This workload measure is aligned with a fare inspection system that operates under an \textit{in-station location policy}, i.e., when fare payment is verified in-station as passengers alight from (or board) the bus \citep{Escalona2024}. 
+Thus, the district workload is computed as the sum of passengers boarding (or alighting) at each stop within the district, thereby defining an additive workload. 
+The second approach is to measure workload based on the number of buses. This workload measure is aligned with fare inspection systems that operate under an \textit{on-board location policy}, i.e., when fare payment is verified on-board the buses \citep{Escalona2024,barabino2025comparing}. 
+However, considering the sum of the number of buses entering (or leaving) stops leads to an overestimation of the number of buses in a  district because stops share buses. 
+Thus, when measuring workload as the number of buses operating in a district during a given time interval, the district’s workload is computed as the sum of buses conditioned on the sharing among basic units, thereby defining a non-additive workload.}
+
+\textcolor{red}{Two main questions constitute the essential elements in the design of a district-based fare inspection system in a large-scale POP-UBTS: 
+(1) what basic units define each district? and 
+(2) what resources should be assigned to each district? 
+This paper addresses the first question by considering a fare inspection system that operates under an on-board location policy. 
+Consequently, we use a non-additive workload measure to compute the number of buses in each district.}
+The \textcolor{red}{transportation} network is \textcolor{red}{modeled} by an undirected graph, where nodes represent basic units and edges represent adjacency between basic units.
+\textcolor{red}{
+The POP-UBTS districting problem, which considers integrity, contiguity, compactness, and balance criteria, is formulated as a mixed-integer linear programming (MIP) model with an exponential family of contiguity constraints. 
+Since explicitly enumerating these constraints is computationally impractical for large-scale POP-UBTS instances, we develop a cutting-plane based branch-and-cut approach that dynamically separates violated contiguity constraints. 
+To obtain a tractable and spatially consistent representation of the bus network, we use a regular hexagonal tessellation in which each hexagon defines a basic unit represented by a node in the districting graph.
+}
+\textcolor{red}{The solution approach is tested on the bus system of Santiago, Chile.} 
+
+The main contributions of this study are summarized as follows.
+\textcolor{red}{(1) To the best of our knowledge, this is the first time that balanced district design has been addressed considering shared workload among basic units. Thus, we extend district design by considering workload that is mobile and shared among basic units.
+(2) A novel and practical optimization model is proposed to address the design of balanced districts in terms of the number of buses in a POP-UBTS. The novelty lies in the fact that the optimization model formulation considers a non-additive measure of district workload, since basic units in a POP-UBTS share buses as they move through the transportation network. 
+The usefulness lies in the fact that the optimization model enables the transit authority to design balanced fare inspection districts in the number of buses when implementing a district-based on-board location policy.
+(3) A solution approach based on branch-and-cut is proposed, which provides compact, balanced, contiguous, and integral districts of good quality in terms of the optimality gap, for districting large-scale POP-UBTS.} 
+
+The remainder of this paper is structured as follows. Section \ref{sec:literature} provides a review of graph partitioning algorithms and previous works related to districting in transportation networks. 
+Section \ref{sec:formulation} presents the MIP formulation for the \textcolor{red}{POP-}UBTS districting problem.
+Section \ref{sec:solution} describes the solution approach. 
+Section \ref{sec:computational} reports the computational results and \textcolor{red}{managerial insights} on a real large-scale \textcolor{red}{POP-}UBTS.
+Finally, Section \ref{sec:conclusion} provides some conclusions and suggested future extensions.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Literature review} \label{sec:literature}
+The literature review focuses on two main topics: graph partitioning and districting in transportation systems. 
+Graph partitioning provides the theoretical foundation and algorithms for partitioning large-scale networks into subgraphs.
+Conversely, the literature on districting in transportation systems addresses applications in which transportation networks are partitioned for operational purposes, such as pricing, traffic management, call centers, or fare inspection. 
+These two topics define the conceptual and methodological basis for addressing the formulation and solution approach presented in this paper.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Graph partitioning} \label{sec:2.1}
+Graph partitioning has several applications, including parallel computing, data mining, social networks, image processing, simulation grids, and route planning \citep{Catalyurek2023,Cordero2025}. 
+The aim is to divide the nodes (basic units) of a graph into a predefined number of subsets (districts) of roughly equal weight (workload).
+The weight of a subset is defined as the sum of the weights of its nodes, i.e., using an additive district workload measure.
+
+A wide variety of algorithms have been proposed to address \textcolor{red}{the districting} problem. 
+In Table \ref{table:partitioning}, we classify graph partitioning algorithms according to: (i) the districting criteria (integrity, contiguity, compactness or balance), (ii) the workload measure (additive or non-additive on basic units), and (iii) the quality guarantee in terms of optimality gap.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{table}[h]
+\centering
+\caption{Selected algorithms on graph partitioning}
+\label{table:partitioning}
+
+\scalebox{0.85}{
+\begin{tabular}{l cccc c cc c cc}
+\toprule
+\multirow{2}{*}{Algorithm} & \multicolumn{4}{c}{Criteria} &  & \multicolumn{2}{c}{Workload} &  & \multicolumn{2}{c}{Optimality gap} \\
+\cmidrule(lr){2-5} \cmidrule(lr){7-8} \cmidrule(lr){10-11}
+ & I & C & CO & B & & A & NA & & Yes & No \\
+\midrule
+Kernighan and Lin \citep{Kernighan1970} & $\times$ &   & $\times$ & $\times$ &  &  $\times$ &  &  &  &  $\times$  \\
+Fiduccia and Mattheyses \citep{Fiduccia1982} & $\times$ &   & $\times$ & $\times$ &  &  $\times$ &  &  &  &  $\times$   \\
+CHACO \citep{Hendrickson1995} & $\times$ &   & $\times$ & $\times$ &  &  $\times$ &  &  &  &  $\times$  \\
+SCOTCH \citep{Pellegrini1996} & $\times$ & $\times$ &  & $\times$ &  &  $\times$ &  &  &  &  $\times$   \\
+METIS \citep{Karypis1998}  & $\times$ & $\times$ & $\times$ & $\times$ &  & $\times$ &   &  &  &  $\times$  \\
+Datta et al. \citep{Datta2008} & $\times$ & $\times$ & $\times$ & $\times$ &  & $\times$  &  &  &  &  $\times$  \\
+KaFFPaE \citep{Sanders2012} & $\times$ &   & $\times$ & $\times$ &  & $\times$ &  &  &  &  $\times$  \\
+Jovanovic et al. \citep{Jovanovic2016} & $\times$ & $\times$  &  &  &  &  &  &  &  &  $\times$  \\
+Bruglieri and Cordone \citep{Bruglieri2021} & $\times$ & $\times$ &  & $\times$ &  & $\times$  &  &  & $\times$ &  \\
+This work  & $\times$ & $\times$ & $\times$ & $\times$ &  &  & $\times$  &  & $\times$ &   \\
+\bottomrule
+\end{tabular}}
+
+\footnotesize{I, integrity; C, contiguity; CO, compactness; B, balance; A, additive; NA, non-additive.}
+\end{table}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Kernighan and Lin \citep{Kernighan1970} study a variant of the graph partitioning problem in which the number of edges crossing the subsets is minimized, promoting the compactness of the subsets.
+They propose one of the first graph partitioning algorithms, which is based on iterative \textcolor{red}{swapping between pairs of nodes from different subsets}. 
+Balance is enforced by constraining subsets to contain the same number of nodes, or an equal sum of node weights. 
+Fiduccia and Mattheyses \citep{Fiduccia1982} improve the Kernighan–Lin algorithm \textcolor{red}{allowing} single-node moves.
+Balance is ensured through fixed upper and lower bounds on subset weights.
+\citep{Kernighan1970} and \citep{Fiduccia1982} do not provide a quality measure in terms of optimality gap.
+Spectral methods \citep{Dinardo2017, Newman2013, Pothen1990} constitute another class of methods, relying on the eigenvalues and eigenvectors of the Laplacian matrix derived from pairwise similarities between the nodes of the graph. 
+Spectral methods can be computationally expensive for large-scale graphs.
+
+Multilevel methods combine coarsening, initial partitioning, and uncoarsening phases. 
+The graph is recursively coarsened into smaller graphs, partitioned at a coarse level, and then refined as the graph is projected back to its original size. 
+Software packages CHACO \citep{Hendrickson1995}, SCOTCH \citep{Pellegrini1996}, and METIS \citep{Karypis1998} partition graphs following a multilevel method.
+These software packages balance the subsets establishing bounds for the subset weights, which is defined as the sum of the weights of its nodes.
+Software packages SCOTCH and METIS consider the contiguity of subsets.
+Software packages CHACO and METIS promote the compactness of the districts with the minimization of the number of edges crossing between subsets.
+These software packages return partitions without any measure of their quality in terms of optimality gap.
+Multilevel methods are among the most efficient approaches for large-scale graphs \citep{Jafari2021}, allowing graphs with even millions of nodes to be partitioned \citep{Lasalle2015}.
+
+Evolutionary and metaheuristic approaches have also been explored.
+Datta et al. \citep{Datta2008} present an evolutionary algorithm that optimizes multiple objectives simultaneously and considers contiguity constraints.
+Objectives in \citep{Datta2008} are associated with the compactness and balance of subsets, using the number of nodes as subset weight.  
+The algorithm is applied to graphs with 50, 100, 200, and 500 nodes.
+KaFFPaE \citep{Sanders2012} is an evolutionary algorithm that combine multilevel graph partitioner KaFFPa \citep{Sanders2011} with crossover and mutation operators.
+KaFFPa and KaFFPaE include a compactness objective and balance constraints according to an additive district workload measure.
+Jovanovic et al. \citep{Jovanovic2016} propose an ant colony optimization approach based on a greedy algorithm to solve the problem of maximum partitioning of graphs with supply and demand (MPGSD) ensuring the contiguity of subsets. 
+The problem is solved in graphs with up to 100 supply nodes and 2000 demand nodes.
+Bruglieri and Cordone \citep{Bruglieri2021} present a two-level tabu search algorithm and an adaptive large neighborhood search algorithm to solve the minimum gap graph partitioning problem (MGGPP) in graphs with up to 23000 nodes. 
+MGGPP addresses the balance in the objective function, minimizing the sum of the gaps of each subset, where the gap of a subset is defined as the maximum difference between the weights of two nodes in the subset. 
+Both algorithms in \citep{Bruglieri2021} consider the contiguity of the subsets. 
+The algorithms are applied to graphs with up to 22963 nodes.
+Among the evolutionary and metaheuristic approaches described, only \citep{Bruglieri2021} provide a quality measure for their solutions.
+
+In summary, some of the algorithms described above consider the four basic districting criteria, but all use additive weight measures on nodes weights, i.e., additive district workload measures.
+\textcolor{red}{In this paper, we propose a formulation that considers a non-additive measure of district workload, leading to an optimization problem that cannot be solved using the graph partitioning approaches mentioned above.}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Districting in transportation systems} \label{sec:2.2}
+The literature on districting applied to transportation systems is rather limited. In Table \ref{table:districting}, we classify the studies related to districting in transportation networks according to: (i) the districting criteria (integrity, contiguity, compactness or balance), (ii) workload measure (additive or non-additive on basic units), and (iii) application (pricing, traffic management, railroad call center, or fare inspection).
+
+\begin{table}[h]
+\centering
+\caption{Selected studies on districting in transportation networks}
+\label{table:districting}
+\scalebox{0.85}{
+\begin{tabular}{l cccc c cc c cccc}
+\toprule
+\multirow{2}{*}{Author} & \multicolumn{4}{c}{Criteria} &  & \multicolumn{2}{c}{Workload} &  & \multicolumn{4}{c}{Application} \\
+\cmidrule(lr){2-5} \cmidrule(lr){7-8} \cmidrule(lr){10-13} & I & C & CO & B &  & A & NA &  & P & TF & RCC & FI \\
+\midrule
+Tavares Pereira et al. \citep{Tavares2007} & $\times$ & $\times$ & $\times$ & $\times$ &  &  $\times$ &  &  & $\times$  &  &  &  \\
+Etemadnia et al. \citep{Etemadnia2014} & $\times$ & $\times$ &  & $\times$ &  &  $\times$ &  &  &  & $\times$ & &  \\
+Xie and Ouyang \citep{Xie2016}  & $\times$ & $\times$ & $\times$ & $\times$  &  & $\times$ &  &  &  &  & $\times$ &  \\
+Wang et al. \citep{Wang2021} & $\times$ & $\times$ &  & $\times$ &  & $\times$ &  &  &  & $\times$ &  &  \\
+Schöbel and Urban \citep{Schöbel2025} & $\times$ & $\times$ &  &  &  &  &  &  & $\times$  &  &  &  \\
+Escalona et al. \citep{Escalona2025} &  & $\times$ &  &  &  &  &  &  &  &  &  & $\times$   \\
+This work  & $\times$ & $\times$ & $\times$ & $\times$ &  &  & $\times$ &  &  & &  &  $\times$ \\
+\bottomrule
+\end{tabular}
+}
+
+\footnotesize{I, integrity; C, contiguity; CO, compactness; B, balance; A, additive; NA, non-additive; P, pricing; TF, traffic management; RCC, railroad call center.}
+\end{table}
+
+
+
+
+Tavares Pereira et al. \citep{Tavares2007} and Schöbel and Urban \citep{Schöbel2025} study the districting problem in pricing applications. The aim is to partition the transportation network into zones (districts) that define travel prices in the transportation system. 
+Tavares Pereira et al. \citep{Tavares2007} address the balance in a bi-criteria objective considering additive district workload measures such as surface, population, rail stations, or active population.
+They consider constraints associated with integrity, compactness, the number of districts, and the number of basic units per district.
+Moreover, they approximate the Pareto frontier using a local search evolutionary algorithm.
+The algorithm is applied to the public transportation system of Paris, France. 
+Schöbel and Urban \citep{Schöbel2025} present a MIP with integrity and contiguity constraints, without considering the balance criterion. 
+Furthermore, the MIP include constraints to avoid benefits from buying a ticket for a longer journey than traveled, denoted as \textit{no-elongation constraints}, and avoid benefits from splitting a ticket into multiple sub-tickets, denoted as \textit{no-stopover constraints}. 
+The model is solved directly using a commercial solver.
+
+
+
+The districting problem applied to traffic management has been addressed by Etemadnia et al. \citep{Etemadnia2014} and Wang et al. \citep{Wang2021}. The objective is to define districts that are allocated to traffic control centers responsible for alleviating congestion. 
+In this application, independence is an additional criterion, aiming to reduce interactions between different districts.
+Etemadnia et al. \citep{Etemadnia2014} present an integer programming (IP) model that incorporates four criteria: integrity, contiguity, balance, and independence. 
+Independence is achieved by minimizing inter-flow across subnetwork boundaries. 
+District workload is represented by the district number of basic units and the district flow, according to additive district workload measures.
+The balance is enforced through upper and lower bounds.
+They define two heuristics to solve the model. 
+The first one adopts a recursive approach to determine the sparsest cuts in the network that hold the connectivity and balance  criteria. 
+The second one adopts a greedy network coarsening methodology to determine the most flow-independent subnetworks.
+The heuristics are applied on the Dallas transportation network. 
+Wang et al. \citep{Wang2021} propose a simultaneous node and edge districting formulation. 
+A MIP is defined considering integrity, contiguity, balance, and independence.
+Balance is achieved by minimizing the total deviation in district workload, which is calculated as an additive measure. 
+To solve the MIP, they define a hybrid algorithm, which considers column generation and an iterative search consisting of neighborhood search and intensification search.
+They apply the algorithm to a high-speed rail network in China, considering instances of up to 169 basic units.
+
+Xie and Ouyang \citep{Xie2016} study the districting problem for railroad call center applications, where the railroad network is partitioned into districts that are allocated to caller desks. 
+They formulate a MIP model with integrity, contiguity, compactness, balance, and service reliability criteria.
+Xie and Ouyang \citep{Xie2016} consider an additive district workload measure defined as the expected demand for its caller desk.
+They propose a metaheuristic, which considers a warm-start solution, and a neighborhood search heuristic to improve the solution.
+The metaheuristic is applied to a U.S. rail network considering 157 basic units.
+
+An explicit application of districting for fare inspections is the work of Escalona et al. \citep{Escalona2025}.
+They represent the \textcolor{red}{POP-}UBTS by an undirected graph, in which the nodes represent bus stops and the edges represent connections between bus stops.
+Relying on complete enumeration and considering that each bus stop is a candidate district center, they define as many districts as the number of bus stops in the transit network.
+Following a covering approach, Escalona et al. \citep{Escalona2025} define a district as a subgraph that contains all nodes and edges reachable within a predefined travel time from the district center using any bus line that passes through the district center. 
+In their study, they do not consider integrity, compactness, and balance criteria.
+
+In summary, no previous work has addressed the design of fare inspection districts in transportation systems considering the four basic districting criteria (integrity, contiguity, compactness, and balance) under a non-additive district workload measure. 
+Furthermore, based on the structure of the problem, we adopt a solution approach that provides a quality guarantee in terms of optimality gap.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{\textcolor{red}{The districting problem under shared workload}}
+%\section{Problem statement and mathematical formulation}
+\label{sec:formulation}
+
+This section presents a mathematical \textcolor{red}{programming} model to partition an urban bus network into fare inspection districts that satisfy \textcolor{red}{the criteria of} integrity, contiguity, compactness, and balance \textcolor{red}{in the number of buses operating during a given time interval}.
+
+\textcolor{red}{The POP-UBTS network is represented} by an undirected graph $G = (V, E)$, where $V \; (v = 1, ..., |V |)$ is the set of nodes representing basic units and $E \; (e = 1, ..., |E|)$ is the set of edges connecting adjacent basic units. Let $N_{v}$ be the set of adjacent basic units to $v \in V$, i.e., $N_{v}=\{ v' \in V: \textcolor{red}{\{}v, v'\textcolor{red}{\}} \in E \}$, where basic units in a \textcolor{red}{POP-}UBTS can be bus stops, connections between bus stops, or polygonal areas \citep{Kalcsics2019}. 
+\textcolor{red}{In the transportation network, $L \; (l = 1, ..., |L|)$ bus lines operate. Let $h_l$ be the number of buses of line $l$ operating during a given time interval and \textcolor{red}{$\Omega_{l}$} be the set of basic units followed by bus line $l$.}
+
+\textcolor{red}{To ensure the efficient allocation of inspection teams to their assigned inspection paths (or sites) within each district, compactness is defined as the dispersion of basic units relative to a district center. 
+Let $W \subseteq V$ be the set of candidate district centers, and let $X_v$ be equal to 1 if candidate center $v \in W$ is selected, and 0 otherwise.
+The idea is that each basic unit in a district should be at a minimal distance from its center, which serves as the reporting point for the fare inspection teams.
+Let $d_{vv'}$ be the Euclidean distance between $v \in W$ and $v' \in V$, and $Y_{vv'}$ be equal to 1 if basic unit $v' \in V$ is allocated to center $v \in W$. 
+Thus, the compactness is computed as the sum of the distances from each basic unit to its district center, i.e., $\sum_{v' \in V} d_{v v'} Y_{v v'}$.}
+Figure \ref{ilus_sol} shows an illustrative example of a \textcolor{red}{POP-}UBTS \textcolor{red}{partitioned} into two districts, with seven basic units (e.g., bus stops) and three bus lines.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[h]
+\centering
+%\includegraphics[width=1.0\textwidth]
+\includegraphics[scale = 0.85]{Paper_Omega/Figures/ilus_sol.pdf}
+\caption{Illustrative districting}
+\label{ilus_sol}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\textcolor{red}{In a POP-UBTS network, nodes and edges share buses.
+For instance, in district A of Figure \ref{ilus_sol}, the bus line $l_3$ is shared by basic units $v_1$, $v_2$, and $v_3$. 
+In district B, the bus line $l_2$ is shared by basic units $v_4$, $v_5$, and $v_7$.}
+\textcolor{red}{We assume that the POP-UBTS operates under an on-board inspection policy and consequently the district workload is defined as the number of buses operating within it during a given time interval. Computing the district workload as the sum of buses arriving at (or departing from) the basic units that define the district leads to an overestimation of the number of buses, because basic units share buses.
+To illustrate this issue, consider Figure \ref{ilus_sol} with $h_{l_1}=h_{l_2}=h_{l_3}=1$.
+If the number of buses arriving at each basic unit is computed additively, the workload in districts A and B are 4 and 7 buses, respectively.
+Thus, both districts may be incorrectly classified as unbalanced when real workload in each district is 3 buses, because during the given time interval only 3 buses operate in the network.}
+\textcolor{red}{For this reason}, the number of buses of line $l \in L$ must be \textcolor{red}{computed} at most once within a district.
+\textcolor{red}{To avoid overestimating the number of buses of line $l$ in a district, we define} the auxiliary variable $H_{vl}$, which is equal to 1 if bus line $l$ \textcolor{red}{operates} in the district with center $v \in W$, and 0 otherwise.
+\textcolor{red}{Furthermore}, let $Q_{v}$ be the number of buses \textcolor{red}{operating} on the district with center $v \in W$ \textcolor{red}{during the given time interval}.
+\textcolor{red}{Unlike} other districting formulations, we cannot predefine the average district workload since workload is shared between districts as well as between basic units.
+Thus, we address the balance criterion defining the variables $\overline{Q}$ and $\underline{Q}$ as the highest and lowest number of buses \textcolor{red}{operating} on a district, respectively.
+
+Given that it is impossible to balance districts of real transportation systems equally in terms of number of buses, we define $\alpha  > 0$ as the balance \textcolor{red}{rate}, which represents the maximum percentage of difference between the number of buses \textcolor{red}{operating} on the districts.
+Furthermore, let $n$ be the maximum number of districts.
+
+Using the above notation, we formulate the following MIP model, denoted as Transportation System Districting (TSD) problem.
+
+\allowdisplaybreaks[4]
+\begin{align}
+    \text{TSD}: \min & \sum_{v \in W} \sum_{v' \in V} d_{v v'} Y_{v v'} && \label{eq:1} \\
+    s.t: & \sum_{v \in W} Y_{v v'} = 1 && \forall v' \in V \label{eq:2}  \\
+    &Y_{v v'} \leq X_v && \forall v \in W, v' \in V \label{eq:3}   \\
+    &\sum_{v' \in \bigcup\limits_{k \in S} N_{k} \setminus S} Y_{v v'} - \sum_{v' \in S} Y_{v v'} \geq 1 - |S| && \forall v \in W, S \in \mathcal{S} \label{eq:4}  \\
+    &H_{vl} \geq Y_{v v'} && \forall v \in W, l \in L, v' \in \textcolor{red}{\Omega_l} \label{eq:5}   \\
+    &H_{vl} \leq \sum_{v' \in \textcolor{red}{\Omega_l}} Y_{v v'} && \forall v \in W, l \in L \label{eq:6}   \\
+    &Q_v = \sum_{l \in L} h_l H_{vl} && \forall v \in W \label{eq:7} \\
+    &\overline{Q} \geq Q_v && \forall v \in W \label{eq:8}   \\
+    & Q_v \geq \underline{Q} - (1 - X_v) M && \forall v \in W \label{eq:9} \\
+    &\overline{Q} \leq \underline{Q} (1 + \alpha) \label{eq:10}  \\
+    &\sum_{v \in W} X_v \leq n \label{eq:11}   \\
+    &X_{v}, Y_{v v'}, H_{vl} \in \{0,1\}&& \forall v \in W, v' \in V, l \in L \label{eq:12}   \\
+    &Q_v, \overline{Q}, \underline{Q} \geq 0 && \forall v \in W, \label{eq:13}
+\end{align}
+where $\mathcal{S}$ in~\eqref{eq:4} is the set of all basic units subsets $S \subset V \setminus \{ N_{v} \cup \{ v \} \}$, and $M$ in~\eqref{eq:9} is a large enough number that is computed as $M = \sum_{l \in L} h_l$.
+
+The objective function~\eqref{eq:1} minimizes the sum of the distances of each basic unit $v' \in V$ to its center, ensuring the compactness of the districts.
+Constraints~\eqref{eq:2} guarantee that each basic unit $v' \in V$ must be allocated to only one district, ensuring the integrity of the districts.
+Constraints~\eqref{eq:3} establish that a basic unit $v' \in V$ is allocated to a center $v \in W$ only if $v$ is selected as district center.
+It should be noted that constraints~\eqref{eq:2} and~\eqref{eq:3} jointly ensure that there is at least one district, i.e., $\sum_{v \in W} X_v > 0$, avoiding infeasibility.
+Constraints~\eqref{eq:4} enforce district contiguity, according to Drexl and Haase \citep{Drexl1999}.
+Constraints~\eqref{eq:5} and~\eqref{eq:6} jointly determine if the bus line $l \in L$ \textcolor{red}{operates} on district with center $v \in W$.
+Constraints~\eqref{eq:7} define the number of buses \textcolor{red}{operating} on each district. 
+Constraints~\eqref{eq:8} and~\eqref{eq:9} define the highest and lowest number of buses \textcolor{red}{operating} on a district, respectively. 
+Constraint~\eqref{eq:10} ensure balance, so the difference between the number of buses \textcolor{red}{operating} on the districts does not exceed the balance \textcolor{red}{rate} $\alpha$. 
+Constraint~\eqref{eq:11} bounds the number of districts. 
+Constraints~\eqref{eq:12} are integrality constraints, and~\eqref{eq:13} are non-negativity constraints.
+
+It should be noted that constraints~\eqref{eq:4}, that ensure district contiguity, are similar to the subtour elimination constraints in the Traveling Salesman Problem \citep{Dantzig1954}.
+Constraints~\eqref{eq:4} work as follows.
+For any given subset of basic units allocated to center $v \in W$, defined as $S \subset V \setminus \{N_{v} \cup \{ v \}\}$, at least one basic unit adjacent to $S$ is also allocated to center $v$.
+Since this constraint applies to each subset $S$, the number of constraints~\eqref{eq:4} is exponential.
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{\textcolor{red}{A cutting-plane based branch-and-cut solution approach}} \label{sec:solution}
+
+\textcolor{red}{
+The proposed MIP formulation for the TSD includes an exponential family of contiguity constraints~\eqref{eq:4}. 
+Explicitly enumerating all these constraints is computationally infeasible for real large-scale POP-UBTS instances. 
+Therefore, we adopt a cutting-plane strategy in which the model is initialized with a limited subset of contiguity constraints, and violated inequalities are iteratively separated and added whenever non-contiguous assignments are detected. 
+These cuts eliminate infeasible district configurations with respect to contiguity and progressively strengthen the relaxation. 
+The separation strategy is embedded directly within the branch-and-bound tree, yielding a branch-and-cut scheme.
+}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Initial strengthening} \label{subsec:initial_strengthening}
+
+We start from the original formulation of TSD in which the exponential family of contiguity constraints~\eqref{eq:4} is omitted.
+Salazar-Aguilar et al.~\citep{Salazar2011} show that, in districting problems, most infeasible solutions arising from this relaxation correspond to disconnected subsets of cardinality one (i.e., isolated basic units).
+Therefore, following R\'ios-Mercado and L\'opez-P\'erez~\citep{Rios2013}, we initially strengthen the formulation by adding a polynomial number of linear constraints that explicitly forbid isolated assignments.
+
+To this end, for each candidate center $v \in W$ and each basic unit $v' \in V$, we require that if $v'$ is assigned to district $v$, then at least one neighbor of $v'$ is also assigned to the same district:
+\begin{align}
+\sum_{u \in N_{v'}} Y_{vu} \;\ge\; Y_{vv'}
+\qquad \forall v \in W,\; \forall v' \in V .
+\label{eq:iso_strength}
+\end{align}
+Constraints~\eqref{eq:iso_strength} are exactly the contiguity constraints~\eqref{eq:4} restricted to subsets $S$ with $|S|=1$ (namely, $S=\{v'\}$), hence their number is polynomial, i.e., $|W|\textcolor{red}{\times}|V|$.
+
+\textcolor{red}{
+Constraints~\eqref{eq:iso_strength} do not enforce full district connectivity. 
+Rather, they provide an initial strengthening of the formulation by eliminating isolated assignments, which are a common source of disconnected districts in the relaxed model. 
+This reduces the number of simple contiguity violations that must be detected during the branch-and-cut process. 
+The remaining violations, associated with disconnected subsets with $|S|\ge 2$, are handled dynamically through cut separation within the branch-and-cut scheme described next.
+}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{\textcolor{red}{Separation procedure}}
+\label{subsec:separation}
+\textcolor{red}{
+The remaining contiguity constraints~\eqref{eq:4} are enforced within a branch-and-cut framework. 
+At each relevant node of the branch-and-bound tree, the current solution is inspected to detect violated contiguity inequalities. 
+Whenever a violation is found, the corresponding cut is added to the model. 
+The branching strategy, node selection, and bound management are handled by the MIP solver, while the separation of contiguity cuts is implemented through defined callbacks for both fractional and integer solutions.}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{\textcolor{red}{Fractional separation}}
+\label{subsubsec:fractional_separation}
+
+\textcolor{red}{For fractional solutions, contiguity is assessed through the support graph associated with each candidate center.}
+\textcolor{red}{For each selected center $v \in W$ such that $X_v > 0$, we construct the subgraph induced by the set of basic units with positive assignment to $v$,
+\begin{equation*}
+V_v = \{ v' \in V : Y_{vv'} > 0 \},
+\end{equation*}
+together with the set of edges
+\begin{equation*}
+E_v = \{ \{i,j\} \in E : i \in V_v,\; j \in V_v \},
+\end{equation*}
+inherited from the underlying transportation network.
+The resulting graph $G_v = (V_v, E_v)$ is the support graph associated with center $v$ in the fractional solution.
+}
+
+If $G_v$ is disconnected, its connected components are identified using a standard graph traversal procedure (e.g., depth-first search).
+For each connected component $S \subset V_v$ that does not contain the center $v$, a violated contiguity constraint of the form~\eqref{eq:4} is generated and added to the model.
+These \textcolor{red}{contiguity} cuts forbid the recurrence of the same disconnected assignment in subsequent solutions.
+
+\textcolor{red}{This separation detects violations that are directly visible from the support graph of the current fractional solution. 
+However, in fractional solutions, the support graph associated with a center may be connected even when the fractional assignment does not provide enough connectivity between a basic unit and its center. 
+For this reason, we complement the component-based separation with separator-based inequalities, which identify violated connectivity conditions through vertex separators.}
+
+\textcolor{red}{More precisely, we incorporate vertex-separator inequalities inspired by Oehrlein and Haunert~\citep{Oehrlein2017}. 
+Let $Z \subseteq V \setminus \{v,v'\}$ be a vertex separator between center $v$ and basic unit $v'$ in the underlying graph $G$. 
+That is, removing $Z$ disconnects $v$ from $v'$.
+If $v'$ is allocated to center $v$, then every such separator must contain enough assignment to the same center. 
+This condition is expressed by the following inequality:}
+\begin{align}
+Y_{vv'} \;\le\; \sum_{u \in Z} Y_{vu}
+\qquad \forall v \in W,\; \forall v' \in V,\; \forall Z \in \mathcal{Z}_{vv'} ,
+\label{eq:separator_strength}
+\end{align}
+\textcolor{red}{
+where $\mathcal{Z}_{vv'}$ is the set of all $\{v, v'\}$-separators in $G$.
+}
+
+
+\textcolor{red}{
+Violations of vertex-separator inequalities are detected by computing minimum-capacity separators.
+Since adjacent units do not require an intermediate separator, the separator search is performed for each non-adjacent unit $v' \in V_v \setminus (N_v \cup \{v\})$.
+For each such unit, a minimum-cut problem~\citep{Picard1975} is solved in $G$, where the capacity of each basic unit $j \in V \setminus \{v,v'\}$ is set to $Y_{vj}$.
+Let $Z_{vv'}$ denote the resulting minimum-capacity $\{v,v'\}$-separator.
+If $\sum_{u \in Z_{vv'}} Y_{vu} < Y_{vv'}$, a violated inequality of the form~\eqref{eq:separator_strength} is generated and added to the model as a separator cut.
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{\textcolor{red}{Integer separation}}
+\label{subsubsec:integer_separation}
+
+Whenever the MIP solver identifies an integer incumbent solution, district contiguity is verified by explicitly checking the connectivity of each district.
+For each selected center $v \in W$ such that $X_v = 1$, we construct the subgraph induced by the set of basic units assigned to $v$,
+\begin{equation*}
+    \textcolor{red}{\mathcal{V}}_v = \{ v' \in V : Y_{vv'} = 1 \},
+\end{equation*}
+together with the set of edges
+\begin{equation*}
+    \textcolor{red}{\mathcal{E}}_v = \{ \textcolor{red}{\{}i,j\textcolor{red}{\}} \in E : i \in \textcolor{red}{\mathcal{V}}_v,\; j \in \textcolor{red}{\mathcal{V}}_v \},
+\end{equation*}
+inherited from the underlying transportation network.
+The resulting graph $\textcolor{red}{\mathcal{G}}_v = (\textcolor{red}{\mathcal{V}}_v, \textcolor{red}{\mathcal{E}}_v)$ represents the district associated with center $v$ in the incumbent solution.
+
+\textcolor{red}{
+If $\mathcal{G}_v$ is disconnected, for each connected component $S \subset \mathcal{V}_v$ that does not contain the center $v$, a violated contiguity constraint of the form~\eqref{eq:4} is generated and added to the model as contiguity cuts.
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Computational study \textcolor{red}{and managerial insights}} \label{sec:computational}
+
+This work explores a practical approach to districting large-scale \textcolor{red}{POP-}UBTSs.
+\textcolor{red}{First}, we define a convenient basic unit for partitioning large-scale \textcolor{red}{transportation} networks. More precisely, we explore the use of connections between bus stops or polygonal areas as basic units.
+\textcolor{red}{Next, under different number of districts and balance rate}, \textcolor{red}{we compute} the performance of the cutting-plane based branch-and-cut approach in terms of CPU time and quality solution (optimality gap) using the convenient basic unit. \textcolor{red}{Finally, managerial insights for the transit authority are discussed.} 
+
+The computational study is based on the Santiago Chile \textcolor{red}{POP-}UBTS, which has one of the highest \textcolor{red}{fare} evasion rates, reaching 36.5\% in the first half of 2025 \citep{DTPM2025}.
+Santiago \textcolor{red}{POP-}UBTS consists of 11720 bus stops, 710 bus lines, and \textcolor{red}{7653 buses on a network of 3206 kilometers. Each bus makes between 4 and 5 trips per day, representing an average of 34064 buses in operation each day.}
+Furthermore, based on the route followed by each bus line, the Santiago \textcolor{red}{POP-}UBTS has 20705 connections between bus stops.
+\textcolor{red}{We consider the time interval  between 14:00 and 16:30, during which a total of 3363 buses are operating.}
+Data about Santiago \textcolor{red}{POP-}UBTS were obtained from the databases of Metropolitan Public Transportation Directory (DTPM), who is the agency for managing public transportation in Santiago.
+Figure \ref{bus_stops_brujula_escala} shows the \textcolor{red}{spatial} distribution of bus stops on the Santiago \textcolor{red}{POP-}UBTS. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.20]{Paper_Omega/Figures/grafo_bus_stops_brujula_escala.pdf}
+\caption{Bus stops in Santiago \textcolor{red}{POP-}UBTS}
+\label{bus_stops_brujula_escala}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The cutting-plane based branch-and-cut \textcolor{red}{solution} approach is implemented in Python 3.12 using Gurobi 12.0.
+The search for disconnected subsets is coded using Python's Networkx library.
+The stopping criterion \textcolor{red}{of the solution approach} is an empty list of open nodes \textcolor{red}{in the branch-and-bound tree}, \textcolor{red}{the default optimality gap used by the solver, i.e., $\epsilon = 10^{-4}$}, or a CPU time greater than or equal to \textcolor{red}{259200} seconds.
+All instances are solved on a computer with an Intel(R) Xeon(R) Gold 5218 CPU @ 2.30 GHz processor and 512 GB RAM. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{On the scalability and \textcolor{red}{basic unit types}}
+The connections between bus stops are the natural basic unit to rely on for districting the transportation network. However, there is no guarantee that using connections between bus stops will allow to district the entire \textcolor{red}{POP-}UBTS.
+Therefore, we present as an alternative the use of polygonal areas as basic units according to a tessellation technique. 
+
+\textcolor{red}{To show the scalability of the cutting-plane based branch-and-cut approach using connections between bus stops and polygonal areas as basic units, we follow a coverage approach. 
+More precisely, given a coverage radius $r$ and the centroid of the transportation system, a graph $G_{r} = (V_{r}, E_{r}) \subseteq G$ is partitioned.
+Let $L_{r} \subseteq L$ be the set of bus lines operating on $G_{r}$.
+The coverage radius increases with each iteration until the entire Santiago POP-UBTS is districted ($r \geq 30000$ meters) or TSD cannot be solved. The performance of the basic unit is evaluated in terms of the maximum coverage radius for which we reach a feasible solution.}
+All instances consider that the set of candidates to be centers of fare inspection districts is equal to the set of basic units, the number of districts is equal to ten, and the balance \textcolor{red}{rate} is equal to 1, i.e., $W=V$, $n = 10$, and $\alpha = 1$, respectively.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Districting using connections between bus stops} \label{sec:connections}
+Using connections between bus stops as basic units, the graph representing the Santiago \textcolor{red}{POP-}UBTS is defined as $G = (V, E)$ with 20705 nodes and 63604 edges.
+\textcolor{red}{For the coverage approach, we consider a initial coverage radius $r = 500$ meters, which increases by 500 meters with each iteration.}
+For each coverage radius, the optimality gap and the CPU time are computed in Table \ref{table:cpu_gap_connections}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{table}[h]
+\centering
+\caption{\textcolor{red}{Scalability using connections between bus stops}}
+\label{table:cpu_gap_connections}
+\scalebox{0.85}{
+\begin{tabular}{c c c c c c}
+\toprule
+Radius (m) & $|V_{r}|$ & $|E_{r}|$ & $|L_{r}|$ & CPU time (s) & GAP ($\times 10^{-2}$)  \\
+\midrule
+500 & 57 & 195 & 82 & 794 & 0.0 \\
+1000 & 166 & 737 & 128 & 259200 & 4.4 \\
+1500 & 411 & 1739 & 181 & 259200 & 1.9 \\
+2000 & 654 & 2603 & 212 & 259200 & 0.1 \\
+2500 & 928 & 3579 & 231 & 259200 & 1.0 \\
+3000 & 1196 & 4449 & 250 & 259200 & 0.1 \\
+3500 & 1519 & 5380 & 263 & 259200 &  \\
+4000 & 1939 & 6679 & 284 & 259200 & - \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+As shown in Table \ref{table:cpu_gap_connections}, the maximum coverage radius for which we reach a feasible solution is \textcolor{red}{XXX} meters, which contains \textcolor{red}{XXX} bus stops, \textcolor{red}{XXX} connections between bus stops, and \textcolor{red}{XXX} bus lines. 
+The optimality gap achieved for a coverage radius of \textcolor{red}{XXX} meters is \textcolor{red}{X.X}\%.
+The maximum optimality gap resulting is \textcolor{red}{X.X}\%, which is achieved when the coverage radius is \textcolor{red}{XXX} meters.
+\textcolor{red}{In summary, an approach based on connections between bus stops leads to limited scalability, allowing the districting of small portions of the transportation system.}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Districting using polygonal areas} \label{sec:polygons}
+
+\textcolor{red}{As an alternative to connections between bus stops,} we introduce a tessellation technique where the transportation system is covered by polygonal areas that perfectly fit without overlaps.
+The technique is based on the aggregation of the basic units considered in Section \ref{sec:connections}, so that now each polygonal area of the tessellation constitutes a basic unit containing at least one connection between bus stops.
+Thus, $G = (V, E)$ has as many nodes as the number of polygonal areas in the tessellation.
+It should be noted that it is easy to construct the route followed by bus line $l$, \textcolor{red}{$\Omega_{l}$}, in terms of polygonal areas from the route in terms of connections between bus stops. 
+For \textcolor{red}{each} instance, a regular tessellation with hexagonal polygons of the same size is used.
+\textcolor{red}{Hexagonal polygons were chosen because a hexagonal tessellation is the densest way to arrange circles in two dimensions \citep{Sandoval2022}.
+Furthermore, the \textit{honeycomb conjecture} states that the hexagonal tessellation is the best way to divide a surface into the smallest total number of regions of equal area \citep{Hales2001}.}
+\textcolor{red}{The tessellations have 250 hexagons, except for the instance with a coverage radius of 1000 meters, where the tessellation have 35 hexagons.}
+Using polygonal areas as basic units, a feasible solution is reached for each coverage radius, even for the coverage radius of 30000 meters that considers the entire Santiago \textcolor{red}{POP-}UBTS, as summarized in Table \ref{table:cpu_gap_polygons}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{table}[h]
+\centering
+\caption{\textcolor{red}{Scalability using polygonal areas}}
+\label{table:cpu_gap_polygons}
+\scalebox{0.85}{
+\begin{tabular}{c c c c c c}
+\toprule
+Radius (m) & $|V_{r}|$ & $|E_{r}|$ & $|L_{r}|$ & CPU time (s) & GAP ($\times 10^{-2}$)  \\
+\midrule
+1000 & 35 & 75 & 128 & 761 & 0.0 \\
+5000 & 250 & 576 & 317 & 50035 & 0.0 \\
+10000 & 250 & 562 & 548 & 2034 & 0.0 \\
+15000 & 250 & 700 & 660 & 13244 & 0.0 \\
+20000 & 250 & 665 & 708 & 118746 & 0.0 \\
+30000 & 250 & 592 & 710 & 259200 & 0.4 \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\textcolor{red}{CPU time generally increases with the coverage radius, except for the instance with $r=5000$ meters.
+The maximum optimality gap resulting is 0.4\%, corresponding to the instance with a coverage radius of 30000 meters, which is the only instance where the stopping criterion based on the optimality gap is not satisfied.
+In summary, the results suggest that polygonal areas are a convenient basic unit for representing and districting a large-scale real-world POP-UBTS.}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{\textcolor{red}{Performance of the cutting-plane based branch-and-cut approach under the tessellation technique}} \label{sec:performance}
+
+In this section we evaluate the performance of the cutting-plane based branch-and-cut approach over the entire Santiago \textcolor{red}{POP-}UBTS, considering different numbers of districts, $n$, and balance \textcolor{red}{rate}, $\alpha$, relying on the polygonal areas approach.
+\textcolor{red}{For all instances,  tessellations of 250 polygonal areas are considered.}
+
+\textcolor{red}{We use two variants for defining the set of candidates to be centers of fare inspection districts.
+In the first one, each basic unit is also a candidate district center ($W = V$), i.e., there are as many candidate district centers as basic units.
+In the second one, we propose a set covering approach to define a good quality set $W \subset V$.
+This yields a \textit{location set covering problem} \citep{Toregas1971} with multiple coverage radii whose objective is to determine the minimum number of districts (or, equivalently, district centers) such that the districts are balanced and every basic unit is covered by at least one center.
+A discrete set of coverage radii ranging from 1000 meters to 5000 meters is considered. 
+The results of the location set covering problem with multiple coverage radii identify 24 candidates to serve as district centers.}
+\textcolor{red}{Table \ref{table:cpu_gap_n} shows the CPU time and the optimality gap resulting from solving the TSD model using the two approaches for defining the set of district center candidates.}
+%Table \ref{table:cpu_gap_n} reports the CPU time and the optimality gap resulting for \textcolor{red}{all} instances considering the entire Santiago \textcolor{red}{POP-}UBTS.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{table}[H]
+\centering
+\caption{\textcolor{red}{Performance of solution approach under tessellation} }
+\label{table:cpu_gap_n}
+\scalebox{0.85}{
+\begin{tabular}{c c c cc cc c cc cc}
+\toprule
+& & & \multicolumn{2}{c}{$W = V$} & & \multicolumn{2}{c}{$W \subset V$} \\
+\cmidrule(lr){4-5} \cmidrule(lr){7-8}  $n$ & $\alpha$ & & CPU time (s) & GAP ($\times 10^{-2}$) & & CPU time (s) & GAP ($\times 10^{-2}$) \\
+\midrule
+5 & 0.25  &  & 2696 & 0.0 &   & 370 & 0.0 \\
+5 & 0.50  &  & 784 & 0.0 &   & 259 & 0.0 \\
+5 & 0.75  &  & 723 & 0.0 &   & 22 & 0.0 \\
+5 & 1.00  &  & 359 & 0.0 &   & 14 & 0.0 \\
+10 & 0.25  & & 259200 & - & & 148620 & 0.0  \\
+10 & 0.50  & & 259200 & 7.3 & & 180743 & 0.0 \\
+10 & 0.75  & & 259200 & 2.2 & & 86328 & 0.0 \\
+10 & 1.00  & & 259200 & 0.4 & & 37036 & 0.0 \\
+15 & 0.25  & & 259200 & - & & 259200 & - \\
+15 & 0.50  & & 259200 & - & & 137919 & 0.0 \\
+15 & 0.75  & & 259200 & 8.1 & & 93608 & 0.0 \\
+15 & 1.00  & & 259200 & 4.8 & & 102529 & 0.0 \\
+20 & 0.25  & & 259200 & - & & 259200 & - \\
+20 & 0.50  & & 259200 & - & & 259200 & - \\
+20 & 0.75  & & 259200 & - & & 259200 & 2.5 \\
+20 & 1.00  & & 259200 & 7.8 & & 203333 & 0.0 \\
+\bottomrule
+\end{tabular}}
+\end{table}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\textcolor{red}{As we expected, given a good quality set $W \subset V$, an optimal solution is reached in less CPU time, and it is even possible to solve instances where no feasible solution is reached when $W = V$.
+Furthermore, the CPU time increases with the number of districts, $n$, and decreases as the balance rate, $\alpha$, increases.
+%However, in a few cases, these monotonicities are not met.
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{\textcolor{red}{Managerial insights}}\label{sec:managerial_insights}
+
+\textcolor{red}{In this section, we derive management insights for the transit authority related to the workload, the size, shape, and compactness of the districts, and the fairness from the inspection teams' perspective.
+We consider the entire Santiago POP-UBTS using a tessellation technique with 250 polygonal areas and the good quality set $W \subset V$.}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{\textcolor{red}{On the effect of the number of districts}}\label{sec:managerial_n}
+
+\textcolor{red}{We explore how the number of districts affects the workload, the size, and the compactness of the districts. Figure \ref{districts_n} shows the network of Santiago, Chile, partitioned into five, ten, fifteen, and twenty districts, respectively, using $\alpha = 0.75$.}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{Paper_Omega/Figures/distritos_n5.pdf}
+    \caption{$n=5$}
+    \label{districts_n5}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{Paper_Omega/Figures/distritos_n10.pdf}
+    \caption{$n=10$}
+    \label{districts_n10}
+    \end{subfigure}
+    
+    \vspace{0.5cm}
+
+    \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{Paper_Omega/Figures/distritos_n15.pdf}
+    \caption{$n=15$}
+    \label{districts_n15}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{Paper_Omega/Figures/distritos_n20.pdf}
+    \caption{$n=20$}
+    \label{districts_n20}
+    \end{subfigure}
+    \caption{\textcolor{red}{Districting UBTS from Santiago, Chile, under a different number of districts}}
+    \label{districts_n}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\textcolor{red}{As the number of districts increases, the districts become smaller in terms of the number of basic units.
+Furthermore, this monotonicity is most evident in the center of the network, resulting in a central district containing only three basic units when $n=20$.
+This phenomenon occurs because the bus flow is considerably higher in the center of the network. As a result, the central districts reduce their size, and consequently their workload, to maintain balance as the number of districts increases.}
+
+\textcolor{red}{Let $\widehat{Q} = \frac{\sum_{v \in W} Q_{v}}{\sum_{v \in W} X_{v}}$ be the average district workload, where $Q_v$ and $X_v$ for any $v \in W$ result from the cutting-plane based branch-and-cut solution approach. 
+We define $C_{v}$ as the district compactness measure, which is computed as the average distance from the district center $v \in W$ to the basic units assigned to $v$, i.e., $C_{v} = \frac{\sum_{v' \in V} d_{v v'} Y_{v v'}}{{\sum_{v' \in V} Y_{v v'}}}$, where $Y_{v v'}$ for any $v \in W$ and $v' \in V$ results from the cutting-plane based branch-and-cut solution approach.
+Let $\widehat{C} = \frac{\sum_{v \in W} C_{v}}{\sum_{v \in W} X_{v}}$ be the average district compactness. Figure \ref{managerial_n} shows the average district workload and the average district compactness.}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\begin{figure}[H]
+%    \centering
+%    \begin{subfigure}[b]{0.48\textwidth}
+%    \includegraphics[width=\textwidth]{Paper_Omega/Figures/grafico_Q_n.pdf}
+%    \caption{Average district workload}
+%    \label{Q_average_n}
+%    \end{subfigure}
+%    \hfill
+%    \begin{subfigure}[b]{0.48\textwidth}
+%    \includegraphics[width=\textwidth]{Paper_Omega/Figures/grafico_D_n.pdf}
+%    \caption{Average district compactness}
+%    \label{compactness_average_n}
+%    \end{subfigure}
+%    \caption{\textcolor{red}{Average workload and  compactness under different number of district}}
+%    \label{managerial_n}
+%\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[H]
+\includegraphics[scale = 0.8]{Paper_Omega/Figures/fig1_v2.pdf}
+\caption{\textcolor{red}{Average workload and  compactness under different numbers of district}}\label{managerial_n}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\textcolor{red}{As shown in Figure \ref{managerial_n}, the average district workload, $\widehat{Q}$, and the average district compactness, $\widehat{C}$, decrease as the number of districts, $n$, increases. 
+This behavior is expected, since districting the POP-UBTS into a larger number of districts reduces the number of basic units assigned to each district. 
+It should be noted that, under shared workload, both $\widehat{Q}$ and $\widehat{C}$ exhibit a nonlinear relationship with respect to $n$.
+In particular, the reduction in $\widehat{Q}$ and $\widehat{C}$ is more pronounced for smaller values of $n$.}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{\textcolor{red}{On the effect of the balance rate}}\label{sec:managerial_alfa}
+
+\textcolor{red}{We explore how the balance rate affect the workload, shape, and compactness of the districts.
+Figure \ref{districts_alfa} shows the network of Santiago, Chile, partitioned in ten districts using balance rate equal to 1.00, 0.75, 0.50, and 0.25, respectively.}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{Paper_Omega/Figures/distritos_alfa1.00.pdf}
+    \caption{$\alpha=1.00$}
+    \label{districts_alfa1.00}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{Paper_Omega/Figures/distritos_alfa0.75.pdf}
+    \caption{$\alpha=0.75$}
+    \label{districts_alfa0.75}
+    \end{subfigure}
+    
+    \vspace{0.5cm}
+    
+    \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{Paper_Omega/Figures/distritos_alfa0.50.pdf}
+    \caption{$\alpha=0.50$}
+    \label{districts_alfa0.50}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{Paper_Omega/Figures/distritos_alfa0.25.pdf}
+    \caption{$\alpha=0.25$}
+    \label{districts_alfa0.25}
+    \end{subfigure}
+    \caption{\textcolor{red}{Districting UBTS from Santiago, Chile, under different balance rate}}
+    \label{districts_alfa}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\textcolor{red}{
+Stricter balance requirements (lower $\alpha$) affect the shape of the districts, especially those on the periphery of the network, where the workload is lower.
+Peripheral districts must increase the number of basic units to increase their workload and satisfy the balance criterion.
+Note that the growth of peripheral districts tends toward the center of the network, where bus flow is higher.
+}
+
+\textcolor{red}{Let $\overline{C}$ and $\underline{C}$ denote the maximum and minimum district compactness measure, respectively, i.e., $\overline{C} = \max\limits_{v \in W: X_{v}=1} \{C_{v}\}$ and $\underline{C} = \min\limits_{v \in W: X_{v}=1} \{C_{v}\}$, where $X_v$ for any $v \in W$ results from the cutting-plane based branch-and-cut solution approach. 
+Figure \ref{managerial_alfa} shows the workload and the compactness for instances using ten districts and balance rate equal to 1.00, 0.75, 0.50, and 0.25.}
+
+
+%\begin{figure}[H]
+%    \centering
+%    \begin{subfigure}[b]{0.48\textwidth}
+%    \includegraphics[width=\textwidth]{Paper_Omega/Figures/grafico_Q_alfa.pdf}
+%    \caption{Average district workload}
+%    \label{Q_average_alfa}
+%    \end{subfigure}
+%    \hfill
+%    \begin{subfigure}[b]{0.48\textwidth}
+%    \includegraphics[width=\textwidth]{Paper_Omega/Figures/grafico_D_alfa.pdf}
+%    \caption{Average district compactness}
+%    \label{compactness_average_alfa}
+%    \end{subfigure}
+%    \caption{\textcolor{red}{Average district workload and average district compactness considering the entire Santiago UBTS, 250 polygonal areas and $W \subset V$}}
+%    \label{managerial_alfa}
+%\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[H]
+\includegraphics[scale = 0.85]{Paper_Omega/Figures/fig3_v2.pdf}
+\caption{\textcolor{red}{Workload and compactness under different balance rate}}\label{managerial_alfa}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\textcolor{red}{As shown in Figure \ref{managerial_alfa}, the average district workload, $\widehat{Q}$, tends to decrease slightly as the balance rate, $\alpha$, increases. 
+This behavior is explained by the growth of peripheral districts toward the center of the network as $\alpha$ decreases, as observed in Figure \ref{districts_alfa}.
+Since bus flow is higher in the center of the network and a non-additive workload approach is followed, when $\alpha$ decreases, the increase in workload in peripheral districts is greater than the decrease in workload in central districts, so $\underline{Q}$ increases by a greater proportion than the decrease in $\overline{Q}$, resulting in a slight increase in the average district workload.
+Regarding compactness, higher values of the balance rate,  $\alpha$, lead to slightly better compactness (i.e., lower values of $\widehat{C}$), which is consistent with expectations. 
+However, the magnitude of this effect remains limited. 
+Therefore, although Figure \ref{districts_alfa} shows clear changes in the shape of the districts, their overall dispersion varies only marginally. 
+This suggests that compactness measures based on dispersion may not fully capture the geometric differences between district configurations, highlighting the potential relevance of also incorporating compactness measures based on shape.
+It should be noted that, as $\alpha$ increases, $\overline{C}$ and $\widehat{C}$ show only slight variations, unlike $\underline{C}$, which increases significantly, which is consistent with Figure \ref{districts_alfa}.
+As $\alpha$ increases, the size in terms of the number of basic units of the smallest district increases, thereby increasing the lowest measure of district compactness.}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{\textcolor{red}{On the workload and territorial fairness}}
+
+\textcolor{red}{In this section, we explore the relationship between workload fairness and territorial fairness, where the latter is defined by the district size in terms of the number of basic units.
+Let $\overline{U}$ and $\underline{U}$ denote the maximum and minimum number of basic units assigned to a district, respectively, i.e., $\overline{U} = \max\limits_{v \in W: X_{v}=1} \{\sum_{v' \in V} Y_{vv'}\}$ and $\underline{U} = \min\limits_{v \in W: X_{v}=1} \{\sum_{v' \in V} Y_{vv'}\}$, where $X_v$ and $Y_{vv'}$ for any $v \in W$ and $v' \in V$ result from the cutting-plane based branch-and-cut solution approach. 
+We define $\delta_{Q}$ and $\delta_{U}$ as measures of workload fairness and territorial fairness, respectively, where $\delta_{Q} = \frac{\underline{Q}}{\overline {Q} - \underline{Q}}$ and $\delta_{U} = \frac{\underline{U}}{\overline{U} - \underline{U}}$.
+Figure \ref{managerial_fairness} shows the fairness measures for instances using ten districts and balance rate equal to 1.00, 0.75, 0.50, and 0.25.}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[h]
+\centering
+\includegraphics[scale = 0.85]{Paper_Omega/Figures/fig4_v2.pdf}
+\caption{\textcolor{red}{Workload and territorial fairness trade-off.}}
+\label{managerial_fairness}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\textcolor{red}{Figure \ref{managerial_fairness} shows that improving workload fairness leads to a deterioration in territorial fairness, i.e., as the districts become more balanced in terms of the number of buses, they become more unequal in terms of size.
+This result highlights the trade-off between workload fairness and territorial fairness.
+Although imposing a stricter workload balance improves fairness in terms of inspection effort, it also creates substantial differences in district size, which may be perceived as unfair by the inspection teams.
+Therefore, the transit authority should consider both dimensions of fairness when designing inspection districts.}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Conclusion} \label{sec:conclusion}
+
+\textcolor{red}{This study addresses the design of fare inspection districts in proof-of-payment bus transportation systems. Each district is defined by a set of basic units. The design considers compact, contiguous, integral, and balanced districts.
+The workload is defined in terms of the number of buses operating in the network during a given time interval because we assume an on-board fare inspection system, where fare payment verification is performed by inspection teams on-board the buses. Since buses move throughout the network, the workload is shared among basic units. Thus, the workload of a district cannot be computed as the sum of the workloads of its basic units, leading to a non-additive workload approach.}
+
+\textcolor{red}{The districting problem under shared workload is formulated as a} mixed-integer programming model \textcolor{red}{that include} an exponential number of contiguity constraints.
+The model is solved using a cutting-plane based branch-and-cut approach.
+Contiguity constraints are initially relaxed and iteratively enforced by adding contiguity cuts that are violated by \textcolor{red}{fractional or} incumbent solutions during the branch-and-cut process, enabling the generation of feasible and near-optimal solutions.
+
+Computational experiments were conducted on the Santiago (Chile) \textcolor{red}{POP-}UBTS, showing the applicability and limitations of the model and solution approach.
+From the computational experiments, we observe that:
+\begin{itemize}
+    \item Using connections between bus stops as basic units leads to limited scalability, restricting the districting to small portions of the transportation system due to the high computational burden.
+    \item Aggregating the network through a tessellation technique based on polygonal areas substantially improves scalability, enabling the districting of the entire \textcolor{red}{POP-}UBTS while preserving solution quality.
+    \item Restricting the set of candidate district centers through a set covering approach significantly reduces solution times without compromising feasibility or balance.
+    \item \textcolor{red}{The average district workload decreases as the number of districts increases, in accordance with the law of diminishing marginal returns.}
+    \item \textcolor{red}{A stricter workload balance improves fairness in terms of inspection efforts but worsens fairness in terms of district size.}
+\end{itemize}
+
+Several directions for future research emerge from this work.
+First, future work could focus on \textcolor{red}{improving the performance} of the branch-and-cut framework, for instance through improved cut management, to further \textcolor{red}{enhance} scalability under tighter balance requirements and larger numbers of districts.
+Second, multilevel methods incorporating a non-additive district workload measure could be developed to address large-scale \textcolor{red}{POP-}UBTSs with a larger number of districts.
+Third, districting formulations for fare inspection based on additive workload measures derived from passenger origin--destination data could be explored under in-station fare inspection policies.
+\textcolor{red}{Fourth, a heuristic based on the location set covering problem could be developed to construct a feasible solution that serves as a warm start for the solution approach presented in this paper.}
+\textcolor{red}{Fifth, use compactness measures that allow to quantify the change in shape of the districts observed in the computational study, such as compactness measures based on district boundaries.}
+\textcolor{red}{Finally, this paper addresses only the first stage in the design of a district-based fare inspection system. Therefore, future work could focus on the second stage of the problem, namely, determining how inspection resources should be assigned across districts, defining the inspection strategy and its practical implementation as a mixed strategy.}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Acknowledgments}
+Pablo Escalona is grateful for the support of the National Agency for Research and Development (ANID) Chile through grant FONDECYT 1250126.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\appendix
+
+\bibliographystyle{elsarticle-num} 
+\bibliography{refs.bib}
+
+
+\end{document}

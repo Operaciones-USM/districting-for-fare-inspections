@@ -1,0 +1,928 @@
+# ============================================================
+# LIBRARY IMPORTS
+# ============================================================
+import os
+import time
+import math
+import pandas as pd
+import networkx as nx
+import gurobipy as gp
+from gurobipy import GRB
+import random
+
+# Set the seed
+random.seed(1234)
+
+
+# ============================================================
+# AUXILIARY FUNCTIONS
+# ============================================================
+
+def parsear_lista_excel(valor):
+    """
+    Converts an Excel cell containing comma-separated elements into a list of clean strings.
+
+    Parameters
+    ----------
+    valor : any
+        Cell value.
+
+    Returns
+    -------
+    list[str]
+        List of parsed elements.
+    """
+    if pd.isna(valor):
+        return []
+    texto = str(valor).strip()
+    if texto == "":
+        return []
+    return [x.strip() for x in texto.split(",")]
+
+
+def construir_grafo_adyacencia(V, df_arcos_hexagonos):
+    """
+    Builds the global adjacency graph between hexagons.
+
+    Parameters
+    ----------
+    V : list[str]
+        List of hexagons.
+    df_arcos_hexagonos : pandas.DataFrame
+        DataFrame with columns 'Hexagon 1' y 'Hexagon 2'.
+
+    Returns
+    -------
+    networkx.Graph
+        Undirected adjacency graph.
+    """
+    G = nx.Graph()
+    G.add_nodes_from(V)
+
+    for _, arco in df_arcos_hexagonos.iterrows():
+        hex1 = str(arco["Hexagon 1"]).strip()
+        hex2 = str(arco["Hexagon 2"]).strip()
+        G.add_edge(hex1, hex2)
+
+    return G
+
+
+def obtener_componentes_desconectadas(subgrafo):
+    """
+    Returns the disconnected connected components of a subgraph, excluding the largest component.
+
+    Parameters
+    ----------
+    subgrafo : networkx.Graph
+        Subgraph of the district.
+
+    Returns
+    -------
+    list[list[str]]
+        List of disconnected components (each represented as a list of nodes).
+    """
+    if subgrafo.number_of_nodes() == 0:
+        return []
+
+    if nx.is_connected(subgrafo):
+        return []
+
+    componentes = list(nx.connected_components(subgrafo))
+    componentes.sort(key=len, reverse=True)
+
+    # The largest component is excluded
+    return [list(comp) for comp in componentes[1:]]
+
+
+def obtener_frontera_componente(componente, N):
+    """
+    Retrieves the set of nodes adjacent to a component S,
+    i.e.: (union_{k in S} N[k]) \\ S
+
+    Parameters
+    ----------
+    componente : list[str]
+        List of nodes in component S.
+    N : dict[str, list[str]]
+        Adjacency dictionary by node.
+
+    Returns
+    -------
+    list[str]
+        List of nodes adjacent to S and outside S.
+    """
+    S = set(componente)
+    frontera = set()
+
+    for k in componente:
+        for vecino in N.get(k, []):
+            if vecino not in S:
+                frontera.add(vecino)
+
+    return list(frontera)
+
+
+def construir_subgrafo_desde_soporte(G_global, soporte):
+    """
+    Builds the subgraph induced by a set of nodes.
+
+    Parameters
+    ----------
+    G_global : networkx.Graph
+        Global adjacency graph.
+    soporte : list[str]
+        List of nodes in the district support.
+
+    Returns
+    -------
+    networkx.Graph
+        Induced subgraph.
+    """
+    return G_global.subgraph(soporte).copy()
+
+
+def construir_grafo_auxiliar_node_split(subgrafo, y_v, centro, objetivo, inf_cap=1e9):
+    """
+    Builds the directed auxiliary graph to solve a minimum node cut
+    between 'centro' and 'objetivo' using node splitting.
+
+    For each node j:
+        j_in -> j_out with capacity:
+            - INF if j is center or target
+            - y_v[j] in other cases
+
+    For each undirected edge {a, b}:
+        a_out -> b_in with capacity INF
+        b_out -> a_in with capacity INF
+
+    Parameters
+    ----------
+    subgrafo : networkx.Graph
+        Base subgraph for the auxiliary graph.
+    y_v : dict[str, float]
+        Dictionary with fractional values Y[v, j] for j in the support.
+    centro : str
+        Center node of the district.
+    objetivo : str
+        Target node i.
+    inf_cap : float, optional
+        Sufficiently large "infinite" capacity.
+
+    Returns
+    -------
+    networkx.DiGraph
+        Directed auxiliary graph.
+    """
+    G_aux = nx.DiGraph()
+
+    # Create "in" and "out" nodes and node-capacity arcs
+    for j in subgrafo.nodes():
+        j_in = f"{j}__in"
+        j_out = f"{j}__out"
+
+        G_aux.add_node(j_in)
+        G_aux.add_node(j_out)
+
+        if j == centro or j == objetivo:
+            capacidad = inf_cap
+        else:
+            capacidad = max(0.0, float(y_v.get(j, 0.0)))
+
+        G_aux.add_edge(j_in, j_out, capacity=capacidad)
+
+    # Create connectivity arcs with infinite capacity
+    for a, b in subgrafo.edges():
+        a_out = f"{a}__out"
+        a_in = f"{a}__in"
+        b_out = f"{b}__out"
+        b_in = f"{b}__in"
+
+        G_aux.add_edge(a_out, b_in, capacity=inf_cap)
+        G_aux.add_edge(b_out, a_in, capacity=inf_cap)
+
+    return G_aux
+
+
+def encontrar_separador_minimo(subgrafo, y_v, centro, objetivo):
+    """
+    Finds a minimum node separator between 'centro' and 'objetivo'
+    in the given subgraph, using minimum s-t cut on the auxiliary graph
+    with node splitting.
+
+    Parameters
+    ----------
+    subgrafo : networkx.Graph
+        Base subgraph for finding the separator.
+    y_v : dict[str, float]
+        Fractional values Y[v, j] for the support nodes.
+    centro : str
+        Center node.
+    objetivo : str
+        Target node i.
+
+    Returns
+    -------
+    tuple[float, list[str]]
+        (value of the min-cut, separator Z)
+    """
+    # If center and target are not in the subgraph, there is nothing to do
+    if centro not in subgrafo.nodes() or objetivo not in subgrafo.nodes():
+        return math.inf, []
+
+    # If center = target, separation does not apply
+    if centro == objetivo:
+        return math.inf, []
+
+    # If they are already disconnected in the support, the separator can be considered to have capacity 0
+    if not nx.has_path(subgrafo, centro, objetivo):
+        return math.inf, []
+
+    # “Infinite” capacity that is sufficiently large
+    # It is taken to be greater than the sum of all Y[v,j] in the support
+    inf_cap = max(1.0, sum(y_v.values()) + 1.0)
+
+    # Build auxiliary graph
+    G_aux = construir_grafo_auxiliar_node_split(
+        subgrafo=subgrafo,
+        y_v=y_v,
+        centro=centro,
+        objetivo=objetivo,
+        inf_cap=inf_cap
+    )
+
+    source = f"{centro}__out"
+    sink = f"{objetivo}__in"
+
+    # Solve minimum cut
+    try:
+        cut_value, (lado_source, lado_sink) = nx.minimum_cut(
+            G_aux, source, sink, capacity="capacity"
+        )
+    except Exception as e:
+        return math.inf, []
+
+    # Restore the Z separator:
+    # if j_in is on the source side and j_out is on the sink side, the edge j_in -> j_out has been cut
+    separador = []
+    for j in subgrafo.nodes():
+        if j == centro or j == objetivo:
+            continue
+
+        j_in = f"{j}__in"
+        j_out = f"{j}__out"
+
+        if (j_in in lado_source) and (j_out in lado_sink):
+            separador.append(j)
+
+    # Minor numerical filtering
+    suma_separador = sum(y_v.get(j, 0.0) for j in separador)
+    if abs(suma_separador - cut_value) <= 1e-6:
+        cut_value = suma_separador
+
+    return cut_value, separador
+
+
+# ------------------------------
+# Location set covering problem function
+# ------------------------------
+def problema_cobertura(hex, alfa):
+    """
+    Executes an instance of the location set covering problem.
+
+    Parameters
+    ----------
+    hex : int
+        Number of hexagons.
+    alfa : float
+        Balance tolerance.
+    """
+    print(f"\n===========================================================")
+    print(f"The location set covering problem is beginning to be resolved")
+    print(f"===========================================================")
+
+    # Path definitions
+    carpeta = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data')
+    
+    ruta_conjunto_Nvr = os.path.join(carpeta, f"conjunto_Nvr_{hex}hex.xlsx")
+    ruta_parametro_hvr = os.path.join(carpeta, f'parametro_hvr_{hex}hex.xlsx')
+
+    # Load input files into pandas
+    matriz_conjunto_Nvr = pd.read_excel(ruta_conjunto_Nvr, header=0, index_col=0)
+    matriz_parametro_hvr = pd.read_excel(ruta_parametro_hvr, header=0, index_col=0)
+
+    # Load lists of sets
+    V_cob = matriz_conjunto_Nvr.index.tolist()
+    radios_cobertura = matriz_conjunto_Nvr.columns.tolist()
+    W_cob = V_cob
+
+    # Create dictionary Nvr (hexagons within the coverage radius)
+    Nvr = {}
+    for v, row in matriz_conjunto_Nvr.iterrows():
+        for r, value in row.items():
+            Nvr[(v, r)] = [i for i in value.split(',')] if ',' in str(value) else [value]
+
+    # Load parameter hvr (non-additive workload)
+    hvr = {}
+    for v, row in matriz_parametro_hvr.iterrows():
+        for r, value in row.items():
+            hvr[(v, r)] = round(value, 1)
+
+    # Load parameter large M
+    M_cob = round(matriz_parametro_hvr.values.max(), 1)
+
+    # Create model for the coverage problem
+    model_cobertura = gp.Model("Cobertura")
+
+    # Define variables
+    X_cob = model_cobertura.addVars(W_cob, radios_cobertura, vtype=GRB.BINARY, name="X_cob")
+    Qover_cob = model_cobertura.addVar(lb=0, ub=M_cob, name="Qover_cob")
+    Qunder_cob = model_cobertura.addVar(lb=0, ub=M_cob, name="Qunder_cob")
+
+    # Objective function
+    model_cobertura.setObjective(
+        gp.quicksum(X_cob[v, r] for v in W_cob for r in radios_cobertura),
+        GRB.MINIMIZE
+    )
+
+    # ----------------------------
+    # Constraints
+    # ----------------------------
+    # Coverage constraint
+    for v2 in V_cob:
+        model_cobertura.addConstr(gp.quicksum(gp.quicksum(X_cob[v, r] for v in Nvr[v2, r]) for r in radios_cobertura) >= 1, name=f"R_cobertura_{v2}")
+
+    # Unique radio constraint
+    for v in W_cob:
+        model_cobertura.addConstr(gp.quicksum(X_cob[v, r] for r in radios_cobertura) <= 1, name=f"R_unico_radio{v}")
+
+    # Balance constraints
+    for v in W_cob:
+        for r in radios_cobertura:
+            model_cobertura.addConstr(Qover_cob >= hvr[v, r] * X_cob[v, r], name=f"R_balance_1_{v}_{r}")
+    for v in W_cob:
+        for r in radios_cobertura:
+            model_cobertura.addConstr(Qunder_cob <= hvr[v, r] * X_cob[v, r] + (1 - X_cob[v, r]) * M_cob, name=f"R_balance_2_{v}_{r}")
+    model_cobertura.addConstr(Qover_cob <= Qunder_cob * (1 + alfa), name="R_balance_3")
+
+    # ----------------------------
+    # Solve the location set covering problem
+    # ----------------------------
+    W_set = set()
+    W_radio = set()
+    model_cobertura.Params.LogToConsole = 1
+    model_cobertura.optimize()
+
+    # -------------------------------
+    # Retrieve the restricted set W
+    # -------------------------------
+    # Check if a solution has been found
+    if model_cobertura.SolCount > 0:
+        # Retrieve variable X
+        X_cob_sol = pd.DataFrame([
+            {"Distrito": v, "Radio": r, "X_cob": X_cob[v,r].X}
+            for v in W_cob
+            for r in radios_cobertura
+        ])
+        # Identify candidates for district centers
+        centros_distrito = X_cob_sol[X_cob_sol["X_cob"] > 0.9].copy()
+        W = centros_distrito["Distrito"].tolist()
+        for idx, row in centros_distrito.iterrows():
+            W_radio.add((row["Distrito"], row["Radio"]))
+
+        print(f"\Restricted set W: {W}")
+        print(f'\nNumber of centers in restricted set W: {len(W)}')
+        print(f"\Restricted set W with radii: {W_radio}")
+    else:
+        print(f"The location set covering model finished without feasible solutions. Status={model_cobertura.Status}")
+        W = W_cob  # If no solution is found, use the full W
+
+    return W
+
+
+# ============================================================
+# MAIN FUNCTION
+# ============================================================
+
+def ejecutar_instancia(hex, alfa, n, W, cpu_limit=259200, eps_frac=0.2, eps_int=0.9):
+    """
+    Run an instance of the districting problem using:
+    - Lazy constraints of Drexl-Haase in integer solutions (MIPSOL).
+    - User cuts of Drexl-Haase and separator constraints in fractional solutions (MIPNODE).
+
+    Parameters
+    ----------
+    hex : int
+        Number of hexagons.
+    alfa : float
+        Balance tolerance.
+    n : int
+        Maximum number of districts.
+    W : list[str]
+        Set of candidates to district centers.
+    cpu_limit : int, optional
+        CPU time limit in seconds.
+    eps_frac : float, optional
+        Tolerance for considering a variable positive in fractional solutions.
+    eps_int : float, optional
+        Tolerance for considering a variable equal to 1 in integer solutions.
+    """
+    print("\n===========================================================")
+    print(f"Execution starts for {hex} hexagons with alfa = {alfa} and n = {n}")
+    print("===========================================================")
+
+    # --------------------------------------------------------
+    # Path definitions
+    # --------------------------------------------------------
+    carpeta = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data')
+
+    ruta_hexagonos = os.path.join(carpeta, f"grafo_hexagons_{hex}hex.xlsx")
+    ruta_distancias = os.path.join(carpeta, f"distancias_{hex}hex.xlsx")
+
+    # --------------------------------------------------------
+    # Loading input files
+    # --------------------------------------------------------
+    data_grafo = pd.ExcelFile(ruta_hexagonos)
+    matriz_distancias = pd.read_excel(ruta_distancias, header=0, index_col=0)
+    df_arcos_hexagonos = pd.read_excel(ruta_hexagonos, sheet_name="arcos_hexagonos")
+
+    # --------------------------------------------------------
+    # Loading sets
+    # --------------------------------------------------------
+    V = data_grafo.parse("hexagons")["Hexagon"].astype(str).str.strip().tolist()
+    L = data_grafo.parse("Conjunto L")["Bus line"].astype(str).str.strip().tolist()
+
+    # --------------------------------------------------------
+    # Loading adjacencies N(v)
+    # --------------------------------------------------------
+    df_hexagons = data_grafo.parse("hexagons").copy()
+    df_hexagons["Hexagon"] = df_hexagons["Hexagon"].astype(str).str.strip()
+
+    N = df_hexagons.set_index("Hexagon")["Conjunto Nv"].apply(parsear_lista_excel).to_dict()
+
+    # --------------------------------------------------------
+    # Loading sets O(l)
+    # --------------------------------------------------------
+    df_lineas = data_grafo.parse("Conjunto L").copy()
+    df_lineas["Bus line"] = df_lineas["Bus line"].astype(str).str.strip()
+
+    O = df_lineas.set_index("Bus line")["Conjunto O_{l}"].apply(parsear_lista_excel).to_dict()
+
+    # --------------------------------------------------------
+    # Parameters h and M
+    # --------------------------------------------------------
+    h = df_lineas.set_index("Bus line")["Frecuencia"].to_dict()
+    M = sum(h[l] for l in L)
+
+    # --------------------------------------------------------
+    # Distance parameter d
+    # --------------------------------------------------------
+    d = {}
+    for v, row in matriz_distancias.iterrows():
+        v = str(v).strip()
+        for v2, value in row.items():
+            v2 = str(v2).strip()
+            d[(v, v2)] = int(value)
+
+    # --------------------------------------------------------
+    # Construction of the global adjacency graph
+    # --------------------------------------------------------
+    G_global = construir_grafo_adyacencia(V, df_arcos_hexagonos)
+
+    # --------------------------------------------------------
+    # Model creation
+    # --------------------------------------------------------
+    model = gp.Model("Districting")
+
+    # --------------------------------------------------------
+    # Decision variables
+    # --------------------------------------------------------
+    X = model.addVars(W, vtype=GRB.BINARY, name="X")
+    Y = model.addVars(W, V, vtype=GRB.BINARY, name="Y")
+    H = model.addVars(W, L, vtype=GRB.BINARY, name="H")
+    Q = model.addVars(W, lb=0, name="Q")
+    Qover = model.addVar(lb=0, name="Qover")
+    Qunder = model.addVar(lb=0, name="Qunder")
+
+    # --------------------------------------------------------
+    # Objective function
+    # --------------------------------------------------------
+    model.setObjective(
+        gp.quicksum(d[v, v2] * Y[v, v2] for v in W for v2 in V),
+        GRB.MINIMIZE
+    )
+
+    # ========================================================
+    # MODEL CONSTRAINTS
+    # ========================================================
+
+    # Constraint 2: each hexagon is assigned to exactly one district
+    for v2 in V:
+        model.addConstr(
+            gp.quicksum(Y[v, v2] for v in W) == 1,
+            name=f"R2_{v2}"
+        )
+
+    # Constraint 3: can only be assigned to an active center
+    for v in W:
+        for v2 in V:
+            model.addConstr(
+                Y[v, v2] <= X[v],
+                name=f"R3_{v}_{v2}"
+            )
+
+    # Constraint 5
+    for v in W:
+        for l in L:
+            for v2 in O[l]:
+                model.addConstr(
+                    H[v, l] >= Y[v, v2],
+                    name=f"R5_{v}_{l}_{v2}"
+                )
+
+    # Constraint 6
+    for v in W:
+        for l in L:
+            model.addConstr(
+                H[v, l] <= gp.quicksum(Y[v, v2] for v2 in O[l]),
+                name=f"R6_{v}_{l}"
+            )
+
+    # Constraint 7
+    for v in W:
+        model.addConstr(
+            Q[v] == gp.quicksum(h[l] * H[v, l] for l in L),
+            name=f"R7_{v}"
+        )
+
+    # Constraint 8
+    for v in W:
+        model.addConstr(
+            Qover >= Q[v],
+            name=f"R8_{v}"
+        )
+
+    # Constraint 9
+    for v in W:
+        model.addConstr(
+            Q[v] >= Qunder - (1 - X[v]) * M,
+            name=f"R9_{v}"
+        )
+
+    # Constraint 10
+    model.addConstr(
+        Qover <= Qunder * (1 + alfa),
+        name="R10"
+    )
+
+    # Constraint 11
+    model.addConstr(
+        gp.quicksum(X[v] for v in W) <= n,
+        name="R11"
+    )
+
+    # Constraint to avoid |S| = 1
+    for v in W:
+        for v2 in V:
+            model.addConstr(
+                Y[v, v2] <= gp.quicksum(Y[v, u] for u in N.get(v2, [])),
+                name=f"R14_{v}_{v2}"
+            )
+
+    # ========================================================
+    # SEPARATION CALLBACK
+    # ========================================================
+
+    def contiguity_and_separator_callback(model, where):
+        """
+        Hybrid callback:
+        - MIPNODE (fractional solution):
+            * separates Drexl-Haase cuts with cbCut
+            * separates separator constraints with cbCut
+        - MIPSOL (integer solution):
+            * separates Drexl-Haase with cbLazy
+        """
+        # ----------------------------------------------------
+        # Termination by CPU time
+        # ----------------------------------------------------
+        if time.process_time() - cpu_start > cpu_limit:
+            model.terminate()
+            return
+
+        # ====================================================
+        # CASE 1: FRACTIONAL NODE SOLUTION (MIPNODE)
+        # ====================================================
+        if where == GRB.Callback.MIPNODE:
+            status = model.cbGet(GRB.Callback.MIPNODE_STATUS)
+
+            if status == GRB.OPTIMAL:
+                print("\n[DEBUG] --- Nodo MIPNODE (fractional solution) ---")
+
+            # cbGetNodeRel can be used only if the node's state is OPTIMAL
+            if status != GRB.OPTIMAL:
+                return
+            
+            # ------------------------------------------------
+            # Filter to avoid entering all fractional nodes
+            # ------------------------------------------------
+            elapsed_cpu = time.process_time() - cpu_start
+
+            if elapsed_cpu < 21600:
+                prob = 0.6
+            elif elapsed_cpu < 64800:
+                prob = 0.4
+            else:
+                prob = 0.2
+
+            # Perform the probabilistic test
+            if random.random() > prob:
+                return
+
+            # Retrieve current LP relaxation
+            Xrel = model.cbGetNodeRel(X)
+            Yrel = model.cbGetNodeRel(Y)
+
+            # ------------------------------------------------
+            # Iterate over centers with X[v] > 0
+            # ------------------------------------------------
+            for v in W:
+                if Xrel[v] <= eps_frac:
+                    continue
+
+                # Fractional support of district v: nodes with Y[v, i] > 0
+                soporte_v = [i for i in V if Yrel[v, i] > eps_frac]
+
+                # If the support is empty or has only one node, there is nothing relevant
+                if len(soporte_v) <= 1:
+                    continue
+
+                # Build induced support subgraph
+                G_sub = construir_subgrafo_desde_soporte(G_global, soporte_v)
+
+                # ------------------------------------------------
+                # 1) Drexl-Haase separation in MIPNODE
+                # ------------------------------------------------
+                if G_sub.number_of_nodes() > 0 and not nx.is_connected(G_sub):
+                    componentes_disconexas = obtener_componentes_desconectadas(G_sub)
+
+                    for componente in componentes_disconexas:
+                        componente_tuple = tuple(sorted(componente))
+
+                        # Avoid duplicating the same subset S as a user cut
+                        if componente_tuple in model._dh_cuts_added:
+                            continue
+
+                        frontera = obtener_frontera_componente(componente, N)
+                        rhs = 1 - len(componente)
+
+                        # Add the cut for all potential centers
+                        for vv in W:
+                            expr_frontera = gp.quicksum(Y[vv, j] for j in frontera)
+                            expr_comp = gp.quicksum(Y[vv, j] for j in componente)
+
+                            # User cut (valid for fractional solutions)
+                            model.cbCut(expr_frontera - expr_comp >= rhs)
+
+                        model._dh_cuts_added.add(componente_tuple)
+                        model._n_dh_cuts += 1
+
+                # ------------------------------------------------
+                # 2) Separator constraints separation in MIPNODE
+                # ------------------------------------------------
+                # Local dictionary of Y[v, j] values
+                y_v = {j: float(Yrel[v, j]) for j in V}
+
+                for i in soporte_v:
+                    # It does not make sense to separate the center from itself
+                    if i == v:
+                        continue
+
+                    y_vi = float(Yrel[v, i])
+
+                    # ------------------------------------------------
+                    # Filter 1 to reduce the number of min-cuts: only consider Y[v,i] sufficiently large
+                    # ------------------------------------------------
+                    if y_vi <= 0.8:
+                        continue
+
+                    # ------------------------------------------------
+                    # Filter 2 to reduce the number of min-cuts: probability dependent on CPU time
+                    # ------------------------------------------------
+                    elapsed_cpu = time.process_time() - cpu_start
+
+                    if elapsed_cpu < 25920:
+                        prob = 0.8
+                    elif elapsed_cpu < 69120:
+                        prob = 0.6
+                    elif elapsed_cpu < 103680:
+                        prob = 0.4
+                    elif elapsed_cpu < 138240:
+                        prob = 0.2
+                    else:
+                        prob = 0.1
+
+                    # Perform the probabilistic test
+                    if random.random() > prob:
+                        continue
+
+                    # Solve the minimum cut problem for nodes v and i
+                    cut_value, separador = encontrar_separador_minimo(
+                        subgrafo=G_global,
+                        y_v=y_v,
+                        centro=v,
+                        objetivo=i,
+                    )
+
+                    # If no useful separator is obtained, continue
+                    if separador is None:
+                        continue
+                    if len(separador) == 0:
+                        continue
+
+                    suma_separador = sum(y_v.get(j, 0.0) for j in separador)
+
+                    # Check violation: Y[v, i] > sum_{j in Z} Y[v, j]
+                    if y_vi > suma_separador + 1e-6:
+                        key_sep = (v, i, tuple(sorted(separador)))
+
+                        # Avoid duplicates
+                        if key_sep in model._separator_cuts_added:
+                            continue
+
+                        # Add separator constraint as a user cut
+                        expr_sep = gp.quicksum(Y[v, j] for j in separador)
+
+                        # If separador = [] => Y[v, i] <= 0
+                        model.cbCut(Y[v, i] <= expr_sep)
+
+                        model._separator_cuts_added.add(key_sep)
+                        model._n_separator_cuts += 1
+
+        # ====================================================
+        # CASE 2: INCUMBENT INTEGER SOLUTION (MIPSOL)
+        # ====================================================
+        elif where == GRB.Callback.MIPSOL:
+            print("\n[DEBUG] === New incumbent solution found ===")
+
+            # Retrieve incumbent solution
+            Xsol = model.cbGetSolution(X)
+            Ysol = model.cbGetSolution(Y)
+
+            # Retrieve incumbent centers
+            centros = [v for v in W if Xsol[v] > eps_int]
+
+            # Check each incumbent district
+            for centro in centros:
+                distrito = [i for i in V if Ysol[centro, i] > eps_int]
+
+                # If the district is empty or has only one node, there is nothing to check
+                if len(distrito) <= 1:
+                    continue
+
+                # Build induced subgraph
+                G_sub = construir_subgrafo_desde_soporte(G_global, distrito)
+
+                # If it is connected, no lazy constraints are required
+                if G_sub.number_of_nodes() == 0 or nx.is_connected(G_sub):
+                    continue
+
+                # Obtain disconnected components (except the largest)
+                componentes_disconexas = obtener_componentes_desconectadas(G_sub)
+
+                # Counter per incumbent
+                n_cortes_it = 0
+
+                # Add Drexl-Haase lazy constraints
+                for componente in componentes_disconexas:
+                    componente_tuple = tuple(sorted(componente))
+
+                    # Evitar duplicar la misma lazy constraint
+                    if componente_tuple in model._dh_lazy_added:
+                        continue
+
+                    frontera = obtener_frontera_componente(componente, N)
+                    rhs = 1 - len(componente)
+
+                    n_cortes_it += 1
+
+                    for v in W:
+                        expr_frontera = gp.quicksum(Y[v, j] for j in frontera)
+                        expr_comp = gp.quicksum(Y[v, j] for j in componente)
+
+                        model.cbLazy(expr_frontera - expr_comp >= rhs)
+
+                    model._dh_lazy_added.add(componente_tuple)
+                    model._n_dh_lazy += 1
+
+    # ========================================================
+    # STRUCTURES TO AVOID DUPLICATES
+    # ========================================================
+    model._dh_cuts_added = set()          # Drexl-Haase added as user cuts (MIPNODE)
+    model._separator_cuts_added = set()   # Separator constraints added as user cuts (MIPNODE)
+    model._dh_lazy_added = set()          # Drexl-Haase added as lazy constraints (MIPSOL)
+
+    model._n_dh_cuts = 0
+    model._n_separator_cuts = 0
+    model._n_dh_lazy = 0
+
+    # ========================================================
+    # MODEL SOLUTION
+    # ========================================================
+    cpu_start = time.process_time()
+
+    # Required for lazy constraints
+    model.Params.LazyConstraints = 1
+
+    # Recommended when adding custom user cuts
+    model.Params.PreCrush = 1
+
+    model.Params.LogToConsole = 1
+    model.Params.Method = 1
+    model.Params.MIPFocus = 1
+
+    model.optimize(contiguity_and_separator_callback)
+
+    # ========================================================
+    # EXECUTION METRICS
+    # ========================================================
+    duracion_reloj = model.getAttr(GRB.Attr.Runtime)
+    duracion_cpu = time.process_time() - cpu_start
+
+    # ========================================================
+    # CONSOLE REPORT
+    # ========================================================
+    print("\n===========================================================")
+    print("SUMMARY OF ADDED CUTS")
+    print("===========================================================")
+    print(f"Drexl-Haase as user cuts (MIPNODE): {model._n_dh_cuts}")
+    print(f"Separator constraints as user cuts (MIPNODE): {model._n_separator_cuts}")
+    print(f"Drexl-Haase as lazy constraints (MIPSOL): {model._n_dh_lazy}")
+    print("===========================================================")
+
+    print(f"\nWall-clock time: {duracion_reloj:.4f} segundos -> {duracion_reloj / 60:.4f} minutos.")
+    print(f"CPU time: {duracion_cpu:.4f} segundos -> {duracion_cpu / 60:.4f} minutos.")
+
+    # ========================================================
+    # SAVING RESULTS
+    # ========================================================
+    ruta_excel_salida = os.path.join(
+        carpeta,
+        f"Separador_Resultados_W_{hex}hex_cpu{cpu_limit}_alfa{alfa}_n{n}.xlsx"
+    )
+
+    # Check whether a solution was found
+    if model.SolCount > 0:
+        # Retrieve variable X
+        X_sol = pd.DataFrame([
+            {"Distrito": v, "X": X[v].X}
+            for v in W
+        ])
+
+        # Identify used district centers
+        centros_distrito = X_sol[X_sol["X"] > eps_int].copy()
+        hexagonos_centros = centros_distrito["Distrito"].tolist()
+
+        # Retrieve variable Y
+        asignacion_hexagonos_excel = pd.DataFrame([
+            {"Distrito": v, "Hexagon": v2}
+            for v in W
+            for v2 in V
+            if Y[v, v2].X > eps_int
+        ])
+
+        # Retrieve variable Q
+        Q_excel = pd.DataFrame([
+            {"Distrito": v, "Q": Q[v].X}
+            for v in hexagonos_centros
+        ])
+
+        # Summary of cuts
+        resumen_cortes = pd.DataFrame([
+            {"Tipo de corte": "Drexl-Haase user cuts (MIPNODE)", "Cantidad": model._n_dh_cuts},
+            {"Tipo de corte": "Separator constraints user cuts (MIPNODE)", "Cantidad": model._n_separator_cuts},
+            {"Tipo de corte": "Drexl-Haase lazy constraints (MIPSOL)", "Cantidad": model._n_dh_lazy},
+            {"Tipo de corte": "Total", "Cantidad": model._n_dh_cuts + model._n_separator_cuts + model._n_dh_lazy}
+        ])
+
+        # Save results
+        with pd.ExcelWriter(ruta_excel_salida) as writer:
+            asignacion_hexagonos_excel.to_excel(writer, sheet_name="Asignacion", index=False)
+            Q_excel.to_excel(writer, sheet_name="Buses por distrito", index=False)
+            resumen_cortes.to_excel(writer, sheet_name="Resumen cortes", index=False)
+
+    else:
+        print(f"The model finished without feasible solutions. Status={model.Status}")
+
+
+# ============================================================
+# MAIN LOOP
+# ============================================================
+alfas = [1, 0.75, 0.5, 0.25]
+ns = [5, 10, 15, 20]
+hexs = [250]
+
+for hex in hexs:
+    for alfa in alfas:
+        W = problema_cobertura(hex, 32)
+        for n in ns:
+            cpu_start = time.process_time()
+            ejecutar_instancia(hex, alfa, n, W)
