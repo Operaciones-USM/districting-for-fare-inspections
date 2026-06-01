@@ -34,9 +34,9 @@ python districting.py
 ```
 
 For alternative formulations and tests:
-- `python districting_W.py`: Runs the model incorporating walking distances.
-- `python districting_connections_radius.py`: Runs the model evaluating connections within a specific radius.
-- `python districting_tesselation_radius.py`: Runs the model with tessellation constraints.
-- `python modelo1_distritos_ampl.py`: Runs the base model variant.
+- `python districting_connections_radius.py`: Runs the model evaluating connections within a specific radius, in accordance with the experiments described in Section 5.1.1 of the paper.
+- `python districting_tesselation_radius.py`: Runs the model evaluating polygonal areas (tessellation technique) within a specific radius, in accordance with the experiments described in Section 5.1.2 of the paper.
+- `python districting.py`: Runs the model considering polygonal areas (tessellation technique) for different values of parameters and considering W=V, in accordance with the experiments described in Section 5.2 of the paper.
+- `python districting_W.py`: Runs the model considering polygonal areas (tessellation technique) for different values of parameters and considering a good quiality set W, in accordance with the experiments described in Section 5.2 of the paper.
 
 Output files (like `Separador_Resultados_...xlsx`) will automatically be placed in the `data/` folder.
