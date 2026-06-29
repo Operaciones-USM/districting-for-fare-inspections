@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If you use this software or codebase, please cite it as below."
+authors:
+  - family-names: "Escalona"
+    given-names: "Pablo"
+  - family-names: "Cerda"
+    given-names: "Daniel"
+  - family-names: "Wolf"
+    given-names: "Nathalia"
+  - family-names: "Torrealba"
+    given-names: "Pablo"
+title: "Districting for Fare Inspections using Branch-and-Cut"

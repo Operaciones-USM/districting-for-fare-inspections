@@ -40,3 +40,15 @@ For alternative formulations and tests:
 - `python districting_W.py`: Runs the model considering polygonal areas (tessellation technique) for different values of parameters and considering a good quality set W, in accordance with the experiments described in Section 5.2 of the paper.
 
 Output files (like `Separador_Resultados_...xlsx`) will automatically be placed in the `data/` folder.
+
+## Citation
+
+If you use this code in your research, please cite the corresponding manuscript:
+
+```bibtex
+@article{escalona_districting,
+  title={Urban bus transportation system districting for fare inspections},
+  author={Escalona, Pablo and Brotcorne, Luce and Cerda, Daniel and Wolf, Nathalia and Torrealba, Pablo},
+  year={2026}
+}
+```
