@@ -9,6 +9,7 @@ import networkx as nx
 import gurobipy as gp
 from gurobipy import GRB
 import random
+from collections import deque
 
 # Set the seed
 random.seed(1234)
@@ -65,61 +66,6 @@ def construir_grafo_adyacencia(V, df_arcos_hexagonos):
         G.add_edge(hex1, hex2)
 
     return G
-
-
-def obtener_componentes_desconectadas(subgrafo):
-    """
-    Returns the disconnected connected components of a subgraph, excluding the largest component.
-
-    Parameters
-    ----------
-    subgrafo : networkx.Graph
-        Subgraph of the district.
-
-    Returns
-    -------
-    list[list[str]]
-        List of disconnected components (each represented as a list of nodes).
-    """
-    if subgrafo.number_of_nodes() == 0:
-        return []
-
-    if nx.is_connected(subgrafo):
-        return []
-
-    componentes = list(nx.connected_components(subgrafo))
-    componentes.sort(key=len, reverse=True)
-
-    # The largest component is excluded
-    return [list(comp) for comp in componentes[1:]]
-
-
-def obtener_frontera_componente(componente, N):
-    """
-    Retrieves the set of nodes adjacent to a component S,
-    i.e.: (union_{k in S} N[k]) \\ S
-
-    Parameters
-    ----------
-    componente : list[str]
-        List of nodes in component S.
-    N : dict[str, list[str]]
-        Adjacency dictionary by node.
-
-    Returns
-    -------
-    list[str]
-        List of nodes adjacent to S and outside S.
-    """
-    S = set(componente)
-    frontera = set()
-
-    for k in componente:
-        for vecino in N.get(k, []):
-            if vecino not in S:
-                frontera.add(vecino)
-
-    return list(frontera)
 
 
 def construir_subgrafo_desde_soporte(G_global, soporte):
@@ -282,15 +228,81 @@ def encontrar_separador_minimo(subgrafo, y_v, centro, objetivo):
     return cut_value, separador
 
 
+def encontrar_separador_minimal(G, componente, centro):
+    """
+    Finds the minimal separator using the procedure described in Fischetti
+
+    Parameters
+    ----------
+    G : networkx.Graph
+        Adjacency graph.
+    componente : list[str]
+        List of nodes in component.
+    centro : str
+        Center node.
+
+    Returns
+    -------
+    list[str]
+        Minimal separator.
+    """    
+    C = set(componente)
+
+    # A(C): border of the disconnected component
+    frontera = set()
+
+    for u in C:
+        for j in G.neighbors(u):
+            if j not in C:
+                frontera.add(j)
+
+    # BFS from the center without passing through A(C)
+    alcanzados = {centro}
+    cola = deque([centro])
+
+    while cola:
+        u = cola.popleft()
+        for j in G.neighbors(u):
+            if j in frontera:
+                continue
+            if j not in alcanzados:
+                alcanzados.add(j)
+                cola.append(j)
+
+    # Minimal separator:
+    # nodes of A(C) adjacent to the reached region
+    separador = {
+        j for j in frontera
+        if any(
+            u in alcanzados
+            for u in G.neighbors(j)
+        )
+    }
+
+    return list(separador)
+
+
 # ============================================================
 # MAIN FUNCTION
 # ============================================================
 
-def ejecutar_instancia(hex, alfa, n, cpu_limit=259200, eps_frac=0.2, eps_int=0.9):
+def ejecutar_instancia(
+        hex, 
+        alfa, 
+        n, 
+        cpu_limit=259200, 
+        eps_frac=1e-6, 
+        eps_int=0.9, 
+        use_strengthening=True,
+        use_integer_minimal=True,
+        use_integer_mincut=False,
+        use_fractional_mincut=False):
     """
-    Run an instance of the districting problem using:
-    - Lazy constraints of Drexl-Haase in integer solutions (MIPSOL).
-    - User cuts of Drexl-Haase and separator constraints in fractional solutions (MIPNODE).
+    Run an instance of the districting problem, considering that can be used:
+    - Initial strengthening through constraint 14.
+    - Lazy constraints of separator constraints in integer solutions (MIPSOL) obtained using minimal.
+    - Lazy constraints of separator constraints in integer solutions (MIPSOL) obtained using min-cut.
+    - User cuts of separator constraints in fractional solutions (MIPNODE) obtained using min-cut.
 
     Parameters
     ----------
@@ -306,10 +318,26 @@ def ejecutar_instancia(hex, alfa, n, cpu_limit=259200, eps_frac=0.2, eps_int=0.9
         Tolerance for considering a variable positive in fractional solutions.
     eps_int : float, optional
         Tolerance for considering a variable equal to 1 in integer solutions.
+    use_strengthening : boolean, optional
+        Indicate if initial strengthening through constraint 14 is used.
+    use_integer_minimal : boolean, optional
+        Indicate if lazy constraints of separator constraints in integer solutions (MIPSOL) are obtained using minimal.
+    use_integer_mincut : boolean, optional
+        Indicate if lazy constraints of separator constraints in integer solutions (MIPSOL) are obtained using min-cut.
+    use_fractional_mincut : boolean, optional
+        Indicate if user cuts of separator constraints in fractional solutions (MIPNODE) obtained by min-cut are used.
     """
     print("\n===========================================================")
     print(f"Execution starts for {hex} hexagons with alfa = {alfa} and n = {n}")
     print("===========================================================")
+
+    # --------------------------------------------------------
+    # Lazy contraints must be obtained by only one integer separation procedure
+    # --------------------------------------------------------
+    if use_integer_mincut and use_integer_minimal:
+        raise ValueError(
+        "Use only one integer separation procedure"
+    )
 
     # --------------------------------------------------------
     # Path definitions
@@ -462,27 +490,29 @@ def ejecutar_instancia(hex, alfa, n, cpu_limit=259200, eps_frac=0.2, eps_int=0.9
         name="R11"
     )
 
-    # Constraint to avoid |S| = 1
-    for v in W:
-        for v2 in V:
-            model.addConstr(
-                Y[v, v2] <= gp.quicksum(Y[v, u] for u in N.get(v2, [])),
-                name=f"R14_{v}_{v2}"
-            )
+    if use_strengthening:
+        # Constraint to avoid |S| = 1
+        for v in W:
+            for v2 in V:
+                model.addConstr(
+                    Y[v, v2] <= gp.quicksum(Y[v, u] for u in N.get(v2, [])),
+                    name=f"R14_{v}_{v2}"
+                )
 
     # ========================================================
     # SEPARATION CALLBACK
     # ========================================================
 
-    def contiguity_and_separator_callback(model, where):
+    def separator_callback(model, where):
         """
-        Hybrid callback:
-        - MIPNODE (fractional solution):
-            * separates Drexl-Haase cuts with cbCut
-            * separates separator constraints with cbCut
+        Callback:
         - MIPSOL (integer solution):
-            * separates Drexl-Haase with cbLazy
+            * separates separator constraints with cbLazy using minimal when use_integer_minimal=True
+            * separates separator constraints with cbLazy using min-cut when use_integer_mincut=True
+        - MIPNODE (fractional solution):
+            * separates separator constraints with cbCut using min-cut when use_fractional_mincut=True
         """
+        
         # ----------------------------------------------------
         # Termination by CPU time
         # ----------------------------------------------------
@@ -491,9 +521,134 @@ def ejecutar_instancia(hex, alfa, n, cpu_limit=259200, eps_frac=0.2, eps_int=0.9
             return
 
         # ====================================================
-        # CASE 1: FRACTIONAL NODE SOLUTION (MIPNODE)
+        # CASE 1: INCUMBENT INTEGER SOLUTION (MIPSOL)
         # ====================================================
-        if where == GRB.Callback.MIPNODE:
+        elif where == GRB.Callback.MIPSOL:
+            print("\n[DEBUG] === New incumbent solution found ===")
+
+            # Retrieve incumbent solution
+            Xsol = model.cbGetSolution(X)
+            Ysol = model.cbGetSolution(Y)
+
+            # Code block that runs when min-cut is used
+            if use_integer_mincut:
+
+                # ------------------------------------------------
+                # Iterate over centers with X[v] > 0
+                # ------------------------------------------------
+                for v in W:
+                    if Xsol[v] <= eps_int:
+                        continue
+
+                    # Integer support of district v: nodes with Y[v, i] = 1
+                    soporte_v = [i for i in V if Ysol[v, i] > eps_int]
+
+                    # If the support is empty or has only one node, there is nothing relevant
+                    if len(soporte_v) <= 1:
+                        continue
+
+                    # ------------------------------------------------
+                    # 1) Separator constraints separation in MIPNODE
+                    # ------------------------------------------------
+                    # Local dictionary of Y[v, j] values
+                    y_v = {j: float(Ysol[v, j]) for j in V}
+
+                    for i in soporte_v:
+                        # It does not make sense to separate the center from itself
+                        if i == v:
+                            continue
+
+                        y_vi = float(Ysol[v, i])
+
+                        # Solve the minimum cut problem for nodes v and i
+                        cut_value, separador = encontrar_separador_minimo(
+                            subgrafo=G_global,
+                            y_v=y_v,
+                            centro=v,
+                            objetivo=i,
+                        )
+
+                        # If no useful separator is obtained, continue
+                        if separador is None:
+                            continue
+                        if len(separador) == 0:
+                            continue
+
+                        suma_separador = sum(y_v.get(j, 0.0) for j in separador)
+
+                        # Check violation: Y[v, i] > sum_{j in Z} Y[v, j]
+                        if y_vi > suma_separador + 1e-6:
+                            key_sep = (v, i, tuple(sorted(separador)))
+
+                            # Avoid duplicates
+                            if key_sep in model._lazy_added:
+                                continue
+
+                            # Add separator constraint as a lazy constraint
+                            expr_sep = gp.quicksum(Y[v, j] for j in separador)
+
+                            # If separador = [] => Y[v, i] <= 0
+                            model.cbLazy(Y[v, i] <= expr_sep)
+
+                            model._lazy_added.add(key_sep)
+                            model._n_lazy += 1
+
+
+            # Code block that runs when minimal procedure by Fischetti is used
+            elif use_integer_minimal:
+                for v in W:
+                    if Xsol[v] <= eps_int:
+                        continue
+
+                    soporte_v = [
+                        i for i in V
+                        if Ysol[v, i] > eps_int
+                    ]
+
+                    if len(soporte_v) <= 1:
+                        continue
+
+                    G_v = G_global.subgraph(soporte_v)
+
+                    componentes = list(
+                        nx.connected_components(G_v)
+                    )
+
+                    for componente in componentes:
+                        if v in componente:
+                            continue
+
+                        # Validi: Choose an arbitrary node of the disconnected component
+                        i = next(iter(componente))
+
+                        separador = encontrar_separador_minimal(
+                            G=G_global,
+                            componente=componente,
+                            centro=v
+                        )
+
+                        if len(separador) == 0:
+                            continue
+
+                        key_sep = (v, i, tuple(sorted(separador)))
+
+                        if key_sep in model._lazy_added:
+                            continue
+
+                        model.cbLazy(Y[v, i] <= gp.quicksum(Y[v, j] for j in separador))
+
+                        model._lazy_added.add(key_sep)
+                        model._n_lazy += 1
+
+
+        # ====================================================
+        # CASE 2: FRACTIONAL NODE SOLUTION (MIPNODE)
+        # ====================================================
+        if (
+            where == GRB.Callback.MIPNODE
+            and use_fractional_mincut
+        ):
+            
             status = model.cbGet(GRB.Callback.MIPNODE_STATUS)
 
             if status == GRB.OPTIMAL:
@@ -540,36 +695,6 @@ def ejecutar_instancia(hex, alfa, n, cpu_limit=259200, eps_frac=0.2, eps_int=0.9
                 # Build induced support subgraph
                 G_sub = construir_subgrafo_desde_soporte(G_global, soporte_v)
 
-                # ------------------------------------------------
-                # 1) Drexl-Haase separation in MIPNODE
-                # ------------------------------------------------
-                if G_sub.number_of_nodes() > 0 and not nx.is_connected(G_sub):
-                    componentes_disconexas = obtener_componentes_desconectadas(G_sub)
-
-                    for componente in componentes_disconexas:
-                        componente_tuple = tuple(sorted(componente))
-
-                        # Avoid duplicating the same subset S as a user cut
-                        if componente_tuple in model._dh_cuts_added:
-                            continue
-
-                        frontera = obtener_frontera_componente(componente, N)
-                        rhs = 1 - len(componente)
-
-                        # Add the cut for all potential centers
-                        for vv in W:
-                            expr_frontera = gp.quicksum(Y[vv, j] for j in frontera)
-                            expr_comp = gp.quicksum(Y[vv, j] for j in componente)
-
-                            # User cut (valid for fractional solutions)
-                            model.cbCut(expr_frontera - expr_comp >= rhs)
-
-                        model._dh_cuts_added.add(componente_tuple)
-                        model._n_dh_cuts += 1
-
-                # ------------------------------------------------
-                # 2) Separator constraints separation in MIPNODE
-                # ------------------------------------------------
                 # Local dictionary of Y[v, j] values
                 y_v = {j: float(Yrel[v, j]) for j in V}
 
@@ -626,85 +751,23 @@ def ejecutar_instancia(hex, alfa, n, cpu_limit=259200, eps_frac=0.2, eps_int=0.9
                     if y_vi > suma_separador + 1e-6:
                         key_sep = (v, i, tuple(sorted(separador)))
 
-                        # Avoid duplicates
-                        if key_sep in model._separator_cuts_added:
-                            continue
-
                         # Add separator constraint as a user cut
                         expr_sep = gp.quicksum(Y[v, j] for j in separador)
 
                         # If separador = [] => Y[v, i] <= 0
                         model.cbCut(Y[v, i] <= expr_sep)
 
-                        model._separator_cuts_added.add(key_sep)
-                        model._n_separator_cuts += 1
-
-        # ====================================================
-        # CASE 2: INCUMBENT INTEGER SOLUTION (MIPSOL)
-        # ====================================================
-        elif where == GRB.Callback.MIPSOL:
-            print("\n[DEBUG] === New incumbent solution found ===")
-
-            # Retrieve incumbent solution
-            Xsol = model.cbGetSolution(X)
-            Ysol = model.cbGetSolution(Y)
-
-            # Retrieve incumbent centers
-            centros = [v for v in W if Xsol[v] > eps_int]
-
-            # Check each incumbent district
-            for centro in centros:
-                distrito = [i for i in V if Ysol[centro, i] > eps_int]
-
-                # If the district is empty or has only one node, there is nothing to check
-                if len(distrito) <= 1:
-                    continue
-
-                # Build induced subgraph
-                G_sub = construir_subgrafo_desde_soporte(G_global, distrito)
-
-                # If it is connected, no lazy constraints are required
-                if G_sub.number_of_nodes() == 0 or nx.is_connected(G_sub):
-                    continue
-
-                # Obtain disconnected components (excepto la mayor)
-                componentes_disconexas = obtener_componentes_desconectadas(G_sub)
-
-                # Counter per incumbent
-                n_cortes_it = 0
-
-                # Add Drexl-Haase lazy constraints
-                for componente in componentes_disconexas:
-                    componente_tuple = tuple(sorted(componente))
-
-                    # Evitar duplicar la misma lazy constraint
-                    if componente_tuple in model._dh_lazy_added:
-                        continue
-
-                    frontera = obtener_frontera_componente(componente, N)
-                    rhs = 1 - len(componente)
-
-                    n_cortes_it += 1
-
-                    for v in W:
-                        expr_frontera = gp.quicksum(Y[v, j] for j in frontera)
-                        expr_comp = gp.quicksum(Y[v, j] for j in componente)
-
-                        model.cbLazy(expr_frontera - expr_comp >= rhs)
-
-                    model._dh_lazy_added.add(componente_tuple)
-                    model._n_dh_lazy += 1
+                        model._user_added.add(key_sep)
+                        model._n_user += 1
 
     # ========================================================
     # STRUCTURES TO AVOID DUPLICATES
     # ========================================================
-    model._dh_cuts_added = set()          # Drexl-Haase added as user cuts (MIPNODE)
-    model._separator_cuts_added = set()   # Separator constraints added as user cuts (MIPNODE)
-    model._dh_lazy_added = set()          # Drexl-Haase added as lazy constraints (MIPSOL)
+    model._lazy_added = set()        # Separator constraints added as lazy constraints (MIPSOL)
+    model._user_added = set()        # Separator constraints added as user cuts (MIPNODE)
 
-    model._n_dh_cuts = 0
-    model._n_separator_cuts = 0
-    model._n_dh_lazy = 0
+    model._n_lazy = 0
+    model._n_user = 0
 
     # ========================================================
     # MODEL SOLUTION
@@ -721,7 +784,7 @@ def ejecutar_instancia(hex, alfa, n, cpu_limit=259200, eps_frac=0.2, eps_int=0.9
     model.Params.Method = 1
     model.Params.MIPFocus = 1
 
-    model.optimize(contiguity_and_separator_callback)
+    model.optimize(separator_callback)
 
     # ========================================================
     # EXECUTION METRICS
@@ -735,10 +798,17 @@ def ejecutar_instancia(hex, alfa, n, cpu_limit=259200, eps_frac=0.2, eps_int=0.9
     print("\n===========================================================")
     print("SUMMARY OF ADDED CUTS")
     print("===========================================================")
-    print(f"Drexl-Haase as user cuts (MIPNODE): {model._n_dh_cuts}")
-    print(f"Separator constraints as user cuts (MIPNODE): {model._n_separator_cuts}")
-    print(f"Drexl-Haase as lazy constraints (MIPSOL): {model._n_dh_lazy}")
-    print("===========================================================")
+    if use_integer_mincut:
+        print(f"Separator constraints as lazy constraints (MIPSOL) using min-cut: {model._n_lazy}")
+        print("===========================================================")
+
+    elif use_integer_minimal:
+        print(f"Separator constraints as lazy constraints (MIPSOL) using minimal: {model._n_lazy}")
+        print("===========================================================")
+
+    elif use_fractional_mincut:
+            print(f"Separator constraints as user cuts (MIPNODE) using min-cut: {model._n_user}")
+            print("===========================================================")
 
     print(f"\nWall-clock time: {duracion_reloj:.4f} segundos -> {duracion_reloj / 60:.4f} minutos.")
     print(f"CPU time: {duracion_cpu:.4f} segundos -> {duracion_cpu / 60:.4f} minutos.")
@@ -746,10 +816,35 @@ def ejecutar_instancia(hex, alfa, n, cpu_limit=259200, eps_frac=0.2, eps_int=0.9
     # ========================================================
     # SAVING RESULTS
     # ========================================================
-    ruta_excel_salida = os.path.join(
-        carpeta,
-        f"Separador_Resultados_{hex}hex_cpu{cpu_limit}_alfa{alfa}_n{n}.xlsx"
-    )
+    if (use_integer_mincut and use_strengthening):
+        ruta_excel_salida = os.path.join(
+            carpeta,
+            f"Districting_mincut_strengh_{hex}hex_alfa{alfa}_n{n}.xlsx"
+        )
+
+    elif (use_integer_mincut and not use_strengthening):
+            ruta_excel_salida = os.path.join(
+                carpeta,
+                f"Districting_mincut_{hex}hex_alfa{alfa}_n{n}.xlsx"
+            )
+
+    elif (use_integer_minimal and use_strengthening):
+        ruta_excel_salida = os.path.join(
+            carpeta,
+            f"Districting_minimal_strengh_{hex}hex_alfa{alfa}_n{n}.xlsx"
+        )
+
+    elif (use_integer_minimal and not use_strengthening):
+            ruta_excel_salida = os.path.join(
+                carpeta,
+                f"Districting_minimal_{hex}hex_alfa{alfa}_n{n}.xlsx"
+            )
+
+    elif (use_fractional_mincut and use_strengthening):
+        ruta_excel_salida = os.path.join(
+            carpeta,
+            f"Districting_frac_mincut_strengh_{hex}hex_alfa{alfa}_n{n}.xlsx"
+        )
 
     # Check whether a solution was found
     if model.SolCount > 0:
@@ -779,10 +874,8 @@ def ejecutar_instancia(hex, alfa, n, cpu_limit=259200, eps_frac=0.2, eps_int=0.9
 
         # Summary of cuts
         resumen_cortes = pd.DataFrame([
-            {"Tipo de corte": "Drexl-Haase user cuts (MIPNODE)", "Cantidad": model._n_dh_cuts},
-            {"Tipo de corte": "Separator constraints user cuts (MIPNODE)", "Cantidad": model._n_separator_cuts},
-            {"Tipo de corte": "Drexl-Haase lazy constraints (MIPSOL)", "Cantidad": model._n_dh_lazy},
-            {"Tipo de corte": "Total", "Cantidad": model._n_dh_cuts + model._n_separator_cuts + model._n_dh_lazy}
+            {"Tipo de corte": "Separator constraints lazy constraints (MIPSOL)", "Cantidad": model._n_lazy},
+            {"Tipo de corte": "Separator constraints user cuts (MIPNODE)", "Cantidad": model._n_user}
         ])
 
         # Save results
@@ -798,9 +891,9 @@ def ejecutar_instancia(hex, alfa, n, cpu_limit=259200, eps_frac=0.2, eps_int=0.9
 # ============================================================
 # MAIN LOOP
 # ============================================================
+hexs = [250]
 alfas = [1, 0.75, 0.5, 0.25]
 ns = [5, 10, 15, 20]
-hexs = [250]
 
 for hex in hexs:
     for n in ns:
