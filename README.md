@@ -1,6 +1,6 @@
 # Balanced fare inspection districts for large-scale urban bus transportation systems: a workload-sharing approach V.0.1
 
-This repository contains the codebase and manuscript for the "Districting for Fare Inspections" project. 
+This repository contains the codebase and manuscript for the "Balanced fare inspection districts for large-scale urban bus transportation systems: a workload-sharing approach" project. 
 
 ## Structure
 
@@ -47,7 +47,7 @@ If you use this code in your research, please cite the corresponding manuscript:
 
 ```bibtex
 @article{escalona_districting,
-  title={Urban bus transportation system districting for fare inspections},
+  title={Balanced fare inspection districts for large-scale urban bus transportation systems: a workload-sharing approach},
   author={Escalona, Pablo and Brotcorne, Luce and Cerda, Daniel and Wolf, Nathalia and Torrealba, Pablo},
   year={2026}
 }
