@@ -7,13 +7,11 @@ This repository contains a Python implementation of a districting optimization m
 The model incorporates:
 - Classical districting constraints
 - Workload balancing constraints
-- Connectivity constraints
-- Drexl-Haase connectivity cuts
-- Separator constraints based on minimum node cuts
+- Connectivity constraints based on vertex-separators
 
 The implementation uses:
 - Lazy constraints (`cbLazy`) for integer incumbent solutions
-- User cuts (`cbCut`) for fractional node solutions
+- User cuts (`cbCut`) for fractional node solutions when the parameter use_fractional_mincut is activated in the main function ejecutar_instancia 
 
 The objective is to generate connected districts while minimizing the total assignment distance between basic units and district centers.
 
@@ -31,16 +29,7 @@ The model is formulated as a mixed-integer programming (MIP) problem using:
 ### Connectivity Enforcement
 
 Connectivity is handled dynamically during the branch-and-cut process through:
-- Drexl-Haase cuts
-- Separator constraints generated from minimum node cuts
-
-### Fractional and Integer Separation
-
-The callback implementation distinguishes between:
-- Fractional LP solutions (`MIPNODE`)
-- Integer incumbent solutions (`MIPSOL`)
-
-Different classes of cuts are added depending on the solution type.
+- Separator constraints generated for the minimal separators, obtained through the procedure of Validi et al. or solving a min-cut problem
 
 ---
 
@@ -69,6 +58,7 @@ pandas
 networkx
 gurobipy
 openpyxl
+deque
 ```
 
 ---
@@ -80,7 +70,7 @@ The script is organized into the following sections:
 1. Library imports
 2. Auxiliary functions
 3. Graph construction procedures
-4. Minimum separator generation
+4. Minimal (Validi et al.) and minimum (min-cut) separator generation
 5. Mathematical model construction
 6. Callback-based cut separation
 7. Optimization execution
@@ -90,19 +80,7 @@ The script is organized into the following sections:
 
 ## Callback Logic
 
-The callback performs two main tasks.
-
-### MIPNODE
-
-For fractional solutions:
-- Separates Drexl-Haase cuts
-- Separates separator constraints
-
-Cuts are added using:
-
-```python
-model.cbCut(...)
-```
+The callback performs a main task.
 
 ### MIPSOL
 
@@ -130,7 +108,7 @@ The code generates an Excel file containing:
 ## Notes
 
 - The implementation was designed for computational experiments on districting problems.
-- The callback uses probabilistic filtering to reduce the number of separation procedures evaluated during optimization.
+- When parameter use_fractional_mincut is acitvated, the callback uses probabilistic filtering to reduce the number of separation procedures evaluated during fractional separation.
 - CPU-time limits can be configured through the `cpu_limit` parameter.
 
 ---
