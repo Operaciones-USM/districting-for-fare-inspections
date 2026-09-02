@@ -39,7 +39,7 @@ For alternative formulations and tests:
 - `python districting.py`: Runs the model considering polygonal areas (tessellation technique) for different values of parameters and considering W=V, in accordance with the experiments described in Section 5.2 of the paper.
 - `python districting_W.py`: Runs the model considering polygonal areas (tessellation technique) for different values of parameters and considering a good quality set W, in accordance with the experiments described in Section 5.2 of the paper.
 
-Output files (like `Separador_Resultados_...xlsx`) will automatically be placed in the `data/` folder.
+Output files (like `Districting_...xlsx`) will automatically be placed in the `data/` folder.
 
 ## Citation
 
