@@ -1,4 +1,4 @@
-# Districting for Fare Inspections V.0.1
+# Balanced fare inspection districts for large-scale urban bus transportation systems: a workload-sharing approach V.0.1
 
 This repository contains the codebase and manuscript for the "Districting for Fare Inspections" project. 
 
